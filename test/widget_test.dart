@@ -60,4 +60,21 @@ void main() {
     expect(pt.verseOfDay, 'FRASE DO DIA');
     expect(en.verseOfDay, 'QUOTE OF THE DAY');
   });
+
+  test('Espanhol: UI + conteúdo próprios', () {
+    const es = T(Locale('es'));
+    expect(VerseData.hasContent('es'), isTrue);
+    expect(es.appName, 'Frases del Día');
+    expect(es.verseOfDay, 'FRASE DEL DÍA');
+    expect(es.navHome, 'Inicio');
+    expect(es.catName('motivacao'), 'Motivación');
+    // conteúdo ES com 8 por categoria e diferente do inglês
+    for (final c in VerseData.categories) {
+      expect(VerseData.byCategory('es', c.id).length, 8, reason: c.id);
+    }
+    final esFirst = VerseData.allFor('es').first.text;
+    final enFirst = VerseData.allFor('en').first.text;
+    expect(esFirst, isNot(enFirst));
+    expect(esFirst.contains('oportunidad'), isTrue);
+  });
 }
