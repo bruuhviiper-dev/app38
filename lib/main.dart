@@ -9,6 +9,7 @@ import 'l10n/strings.dart';
 import 'screens/splash_screen.dart';
 import 'services/app_state.dart';
 import 'services/notification_service.dart';
+import 'services/widget_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +21,16 @@ Future<void> main() async {
   final appState = AppState(prefs);
   runApp(FrasesDiariasApp(appState: appState));
 
+  // Idioma atual (override ou do aparelho) para notificação + widget.
+  final device = WidgetsBinding.instance.platformDispatcher.locale;
+  final loc = appState.localeOverride ?? T.resolve(device, T.supportedLocales);
+  final t = T(loc);
+
+  // Atualiza o widget de tela inicial com a frase do dia.
+  await WidgetService.updateDailyQuote(lang: t.lang, appName: t.appName);
+
   // Reagenda o lembrete diário (se ligado) com o idioma atual.
   if (appState.notificationsOn) {
-    final device = WidgetsBinding.instance.platformDispatcher.locale;
-    final loc = appState.localeOverride ?? T.resolve(device, T.supportedLocales);
-    final t = T(loc);
     await NotificationService.instance.scheduleDaily(
       title: t.appName,
       body: t.notifBody,

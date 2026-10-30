@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/quote_widget_bg"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/widget_appname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Frases Diárias"
+        android:textColor="#FFC02E"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:letterSpacing="0.02"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/widget_quote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Grandes pensamentos para todos os dias."
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:fontFamily="serif"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:lineSpacingMultiplier="1.15" />
+
+</LinearLayout>
