@@ -8,6 +8,7 @@ import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import '../l10n/strings.dart';
 import '../services/app_state.dart';
+import '../services/notification_service.dart';
 import '../services/rate_prompt.dart';
 
 /// Endônimos para o seletor de idioma (os não listados mostram o código).
@@ -66,9 +67,7 @@ class SettingsScreen extends StatelessWidget {
             label: t.notificationsLabel,
             desc: t.notificationsDesc,
             value: state.notificationsOn,
-            onChanged: (v) {
-              context.read<AppState>().setNotificationsOn(v);
-            },
+            onChanged: (v) => _toggleNotifications(context, v),
           ),
           _Tile(
             icon: LucideIcons.moon,
@@ -171,6 +170,23 @@ class SettingsScreen extends StatelessWidget {
     );
     if (choice == null) return; // dispensado
     state.setLocaleCode(choice == systemSentinel ? null : choice);
+  }
+
+  Future<void> _toggleNotifications(BuildContext context, bool on) async {
+    final t = T.of(context);
+    final state = context.read<AppState>();
+    if (on) {
+      final granted = await NotificationService.instance.requestPermission();
+      if (!granted) return; // sem permissão: mantém desligado
+      await NotificationService.instance.scheduleDaily(
+        title: t.appName,
+        body: t.notifBody,
+      );
+      state.setNotificationsOn(true);
+    } else {
+      await NotificationService.instance.cancelDaily();
+      state.setNotificationsOn(false);
+    }
   }
 
   Future<void> _openInfo(BuildContext context, String title) {

@@ -62,6 +62,9 @@ class T {
   String get copied => _('copied');
   String get favorite => _('favorite');
 
+  // Notificação (texto GENÉRICO — nunca revela a frase)
+  String get notifBody => _('notifBody');
+
   // Editor de imagem
   String get createImage => _('createImage');
   String get editImage => _('editImage');
@@ -161,6 +164,7 @@ class T {
       'filterNew': 'Novas',
       'verse.one': 'frase',
       'verse.many': 'frases',
+      'notifBody': 'Toque para ver a sua frase de hoje 🌅',
       'copy': 'Copiar',
       'copied': 'Frase copiada',
       'favorite': 'Favoritar',
@@ -260,6 +264,7 @@ class T {
       'filterNew': 'New',
       'verse.one': 'quote',
       'verse.many': 'quotes',
+      'notifBody': 'Tap to see your quote for today 🌅',
       'copy': 'Copy',
       'copied': 'Quote copied',
       'favorite': 'Favorite',
@@ -357,6 +362,7 @@ class T {
       'filterNew': 'Nuevas',
       'verse.one': 'frase',
       'verse.many': 'frases',
+      'notifBody': 'Toca para ver tu frase de hoy 🌅',
       'copy': 'Copiar',
       'copied': 'Frase copiada',
       'favorite': 'Favorito',
