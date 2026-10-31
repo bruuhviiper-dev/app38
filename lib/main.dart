@@ -7,8 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/strings.dart';
 import 'screens/splash_screen.dart';
+import 'services/ads_service.dart';
 import 'services/app_state.dart';
+import 'services/consent_service.dart';
 import 'services/notification_service.dart';
+import 'services/purchase_service.dart';
 import 'services/widget_service.dart';
 
 Future<void> main() async {
@@ -20,6 +23,11 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final appState = AppState(prefs);
   runApp(FrasesDiariasApp(appState: appState));
+
+  // Monetização: compras (no_ads) + anúncios após o consentimento (UMP).
+  AdsService.instance.adsRemoved = appState.adsRemoved;
+  PurchaseService.instance.init(appState);
+  ConsentService.gather(() => AdsService.instance.init());
 
   // Idioma atual (override ou do aparelho) para notificação + widget.
   final device = WidgetsBinding.instance.platformDispatcher.locale;

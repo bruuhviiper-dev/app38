@@ -65,6 +65,25 @@ class T {
   // Notificação (texto GENÉRICO — nunca revela a frase)
   String get notifBody => _('notifBody');
 
+  // Loja (remover anúncios)
+  String get removeAdsTitle => _('removeAdsTitle');
+  String get removeAdsHero => _('removeAdsHero');
+  String get removeAdsDesc => _('removeAdsDesc');
+  String get removeAdsCta => _('removeAdsCta');
+  String get adsRemovedTitle => _('adsRemovedTitle');
+  String get adsRemovedDesc => _('adsRemovedDesc');
+  String get watchVideoAdFree => _('watchVideoAdFree');
+  String get restorePurchase => _('restorePurchase');
+  String get processing => _('processing');
+  String get purchaseSuccess => _('purchaseSuccess');
+  String get purchaseFailed => _('purchaseFailed');
+  String get adFreeFor24h => _('adFreeFor24h');
+  String get freeBenefitsTitle => _('freeBenefitsTitle');
+  String get benefitThemes => _('benefitThemes');
+  String get benefitEditor => _('benefitEditor');
+  String get benefitContent => _('benefitContent');
+  String get benefitOffline => _('benefitOffline');
+
   // Editor de imagem
   String get createImage => _('createImage');
   String get editImage => _('editImage');
@@ -165,6 +184,23 @@ class T {
       'verse.one': 'frase',
       'verse.many': 'frases',
       'notifBody': 'Toque para ver a sua frase de hoje 🌅',
+      'removeAdsTitle': 'Remover anúncios',
+      'removeAdsHero': 'Use o app sem anúncios',
+      'removeAdsDesc': 'Pagamento único, para sempre. Sem assinaturas.',
+      'removeAdsCta': 'Remover anúncios',
+      'adsRemovedTitle': 'Você já removeu os anúncios!',
+      'adsRemovedDesc': 'Obrigado pelo apoio 🙏 Aproveite sem interrupções.',
+      'watchVideoAdFree': 'Assistir vídeo (24h sem anúncios)',
+      'restorePurchase': 'Restaurar compra',
+      'processing': 'Processando…',
+      'purchaseSuccess': 'Tudo certo! Anúncios removidos. 🎉',
+      'purchaseFailed': 'Não foi possível concluir a compra.',
+      'adFreeFor24h': 'Sem anúncios por 24 horas! ✨',
+      'freeBenefitsTitle': 'TUDO ISTO É GRÁTIS',
+      'benefitThemes': 'Tema claro e escuro',
+      'benefitEditor': 'Editor de imagem com filtros',
+      'benefitContent': 'Todas as categorias e frases',
+      'benefitOffline': 'Funciona offline, no seu idioma',
       'copy': 'Copiar',
       'copied': 'Frase copiada',
       'favorite': 'Favoritar',
@@ -265,6 +301,23 @@ class T {
       'verse.one': 'quote',
       'verse.many': 'quotes',
       'notifBody': 'Tap to see your quote for today 🌅',
+      'removeAdsTitle': 'Remove ads',
+      'removeAdsHero': 'Enjoy the app ad-free',
+      'removeAdsDesc': 'One-time payment, forever. No subscriptions.',
+      'removeAdsCta': 'Remove ads',
+      'adsRemovedTitle': 'Ads already removed!',
+      'adsRemovedDesc': 'Thanks for your support 🙏 Enjoy without interruptions.',
+      'watchVideoAdFree': 'Watch a video (24h ad-free)',
+      'restorePurchase': 'Restore purchase',
+      'processing': 'Processing…',
+      'purchaseSuccess': 'All set! Ads removed. 🎉',
+      'purchaseFailed': 'Could not complete the purchase.',
+      'adFreeFor24h': 'Ad-free for 24 hours! ✨',
+      'freeBenefitsTitle': 'ALL OF THIS IS FREE',
+      'benefitThemes': 'Light and dark theme',
+      'benefitEditor': 'Image editor with filters',
+      'benefitContent': 'All categories and quotes',
+      'benefitOffline': 'Works offline, in your language',
       'copy': 'Copy',
       'copied': 'Quote copied',
       'favorite': 'Favorite',
@@ -363,6 +416,23 @@ class T {
       'verse.one': 'frase',
       'verse.many': 'frases',
       'notifBody': 'Toca para ver tu frase de hoy 🌅',
+      'removeAdsTitle': 'Quitar anuncios',
+      'removeAdsHero': 'Usa la app sin anuncios',
+      'removeAdsDesc': 'Pago único, para siempre. Sin suscripciones.',
+      'removeAdsCta': 'Quitar anuncios',
+      'adsRemovedTitle': '¡Ya quitaste los anuncios!',
+      'adsRemovedDesc': 'Gracias por tu apoyo 🙏 Disfruta sin interrupciones.',
+      'watchVideoAdFree': 'Ver un video (24h sin anuncios)',
+      'restorePurchase': 'Restaurar compra',
+      'processing': 'Procesando…',
+      'purchaseSuccess': '¡Listo! Anuncios quitados. 🎉',
+      'purchaseFailed': 'No se pudo completar la compra.',
+      'adFreeFor24h': '¡Sin anuncios por 24 horas! ✨',
+      'freeBenefitsTitle': 'TODO ESTO ES GRATIS',
+      'benefitThemes': 'Tema claro y oscuro',
+      'benefitEditor': 'Editor de imagen con filtros',
+      'benefitContent': 'Todas las categorías y frases',
+      'benefitOffline': 'Funciona sin conexión, en tu idioma',
       'copy': 'Copiar',
       'copied': 'Frase copiada',
       'favorite': 'Favorito',

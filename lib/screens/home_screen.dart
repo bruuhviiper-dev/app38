@@ -13,6 +13,7 @@ import '../services/share_helper.dart';
 import '../shared/widgets/category_grid.dart';
 import '../shared/widgets/home_header.dart';
 import '../shared/widgets/inspiration_card.dart';
+import '../shared/widgets/native_ad.dart';
 import '../shared/widgets/section_header.dart';
 import '../shared/widgets/verse_of_day_card.dart';
 import 'category_verses_screen.dart';
@@ -104,6 +105,8 @@ class HomeBody extends StatelessWidget {
               onTap: () => _openDetail(context, more[i]),
             ),
             if (i != more.length - 1) const SizedBox(height: AppSpacing.cardGap),
+            // Anúncio nativo "disfarçado" no feed (some p/ quem removeu anúncios).
+            if (i == 1) const NativeAdWidget(),
           ],
         ],
       ),

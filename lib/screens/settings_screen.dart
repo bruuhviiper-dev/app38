@@ -10,6 +10,7 @@ import '../l10n/strings.dart';
 import '../services/app_state.dart';
 import '../services/notification_service.dart';
 import '../services/rate_prompt.dart';
+import 'store_screen.dart';
 
 /// Endônimos para o seletor de idioma (os não listados mostram o código).
 const _endonyms = <String, String>{
@@ -83,6 +84,14 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.x4),
           _SectionLabel(t.general),
+          if (!state.adsRemoved)
+            _Tile(
+              icon: LucideIcons.ban,
+              label: t.removeAdsTitle,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const StoreScreen()),
+              ),
+            ),
           _Tile(
             icon: LucideIcons.info,
             label: t.about,

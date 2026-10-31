@@ -19,6 +19,11 @@ class AppState extends ChangeNotifier {
   static const _kFontScale = 'font_scale';
   static const _kNotifications = 'notifications_on';
   static const _kOnboarding = 'onboarding_done';
+  static const _kEntitlements = 'entitlements';
+  static const _kTempPro = 'temp_pro_until';
+
+  /// Produto de compra única "remover anúncios" — mesmo id do app2/app26.
+  static const String pRemoveAds = 'no_ads';
 
   final Set<String> _favorites = {};
   ThemeMode _themeMode = ThemeMode.dark;
@@ -26,6 +31,8 @@ class AppState extends ChangeNotifier {
   double _fontScale = 1.0;
   bool _notificationsOn = false;
   bool _onboardingDone = false;
+  final Set<String> _entitlements = {};
+  DateTime? _tempProUntil;
 
   // ----- favoritos -----
   Set<String> get favorites => Set.unmodifiable(_favorites);
@@ -94,6 +101,28 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ----- compras / anúncios -----
+  bool ownsProduct(String id) => _entitlements.contains(id);
+
+  void grantEntitlement(String id) {
+    if (_entitlements.add(id)) {
+      _prefs.setStringList(_kEntitlements, _entitlements.toList());
+      notifyListeners();
+    }
+  }
+
+  /// PRO temporário liberado por VÍDEO premiado (ex.: 24h sem anúncios).
+  bool get hasTemporaryPro =>
+      _tempProUntil != null && _tempProUntil!.isAfter(DateTime.now());
+  void grantTemporaryPro(Duration d) {
+    _tempProUntil = DateTime.now().add(d);
+    _prefs.setInt(_kTempPro, _tempProUntil!.millisecondsSinceEpoch);
+    notifyListeners();
+  }
+
+  /// Vê o app sem anúncios: comprou "remover anúncios" OU está no PRO temporário.
+  bool get adsRemoved => _entitlements.contains(pRemoveAds) || hasTemporaryPro;
+
   void _load() {
     _favorites.addAll(_prefs.getStringList(_kFavorites) ?? const []);
     final tm = _prefs.getInt(_kThemeMode);
@@ -104,5 +133,8 @@ class AppState extends ChangeNotifier {
     _fontScale = _prefs.getDouble(_kFontScale) ?? 1.0;
     _notificationsOn = _prefs.getBool(_kNotifications) ?? false;
     _onboardingDone = _prefs.getBool(_kOnboarding) ?? false;
+    _entitlements.addAll(_prefs.getStringList(_kEntitlements) ?? const []);
+    final tp = _prefs.getInt(_kTempPro);
+    _tempProUntil = tp != null ? DateTime.fromMillisecondsSinceEpoch(tp) : null;
   }
 }
