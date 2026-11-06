@@ -136,33 +136,41 @@ class _VerseDetailScreenState extends State<VerseDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _Action(
-                        icon: LucideIcons.share2,
-                        label: t.share,
-                        busy: _busy,
-                        onTap: () => _shareImage(t),
-                      ),
-                      _Action(
-                        icon: LucideIcons.wand,
-                        label: t.editImage,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  ImageEditorScreen(verse: widget.verse)),
+                      Flexible(
+                        child: _Action(
+                          icon: LucideIcons.share2,
+                          label: t.share,
+                          busy: _busy,
+                          onTap: () => _shareImage(t),
                         ),
                       ),
-                      _Action(
-                        icon: LucideIcons.copy,
-                        label: t.copy,
-                        onTap: () => _copy(t),
+                      Flexible(
+                        child: _Action(
+                          icon: LucideIcons.wand,
+                          label: t.editImage,
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    ImageEditorScreen(verse: widget.verse)),
+                          ),
+                        ),
                       ),
-                      _Action(
-                        icon: LucideIcons.heart,
-                        label: t.save,
-                        active: isFav,
-                        onTap: () => context
-                            .read<AppState>()
-                            .toggleFavorite(widget.verse.id),
+                      Flexible(
+                        child: _Action(
+                          icon: LucideIcons.copy,
+                          label: t.copy,
+                          onTap: () => _copy(t),
+                        ),
+                      ),
+                      Flexible(
+                        child: _Action(
+                          icon: LucideIcons.heart,
+                          label: t.save,
+                          active: isFav,
+                          onTap: () => context
+                              .read<AppState>()
+                              .toggleFavorite(widget.verse.id),
+                        ),
                       ),
                     ],
                   ),
@@ -201,7 +209,7 @@ class _Action extends StatelessWidget {
         onTap: busy ? null : onTap,
         borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -214,6 +222,9 @@ class _Action extends StatelessWidget {
                   : Icon(icon, color: color, size: 24),
               const SizedBox(height: 6),
               Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(color: color)),
             ],
           ),

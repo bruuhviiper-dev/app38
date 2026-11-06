@@ -78,30 +78,12 @@ class VerseOfDayCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.x5),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: onShare,
-                        icon: const Icon(LucideIcons.share2, size: 18),
-                        label: Text(t.share),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.x3),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: onToggleFavorite,
-                        icon: Icon(
-                          LucideIcons.heart,
-                          size: 18,
-                          color: isFavorite
-                              ? AppColors.gold
-                              : AppColors.textPrimary,
-                        ),
-                        label: Text(t.save),
-                      ),
-                    ),
-                  ],
+                _HeroActions(
+                  share: t.share,
+                  save: t.save,
+                  isFavorite: isFavorite,
+                  onShare: onShare,
+                  onToggleFavorite: onToggleFavorite,
                 ),
               ],
             ),
@@ -134,6 +116,61 @@ class _DayBadge extends StatelessWidget {
               style: AppTextStyles.overline.copyWith(color: AppColors.gold)),
         ],
       ),
+    );
+  }
+}
+
+/// Ações do card (Compartilhar / Salvar). Lado a lado no tamanho normal; com
+/// fonte grande, EMPILHA em largura total (sem encolher a fonte) para "Compartilhar"
+/// nunca quebrar no meio. Área de toque mín. 50dp (tema). Rótulos em 1 linha.
+class _HeroActions extends StatelessWidget {
+  const _HeroActions({
+    required this.share,
+    required this.save,
+    required this.isFavorite,
+    required this.onShare,
+    required this.onToggleFavorite,
+  });
+
+  final String share;
+  final String save;
+  final bool isFavorite;
+  final VoidCallback onShare;
+  final VoidCallback onToggleFavorite;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context).scale(1.0);
+    final stacked = scale >= 1.2;
+
+    final shareBtn = FilledButton.icon(
+      onPressed: onShare,
+      icon: const Icon(LucideIcons.share2, size: 18),
+      label: Text(share, maxLines: 1, overflow: TextOverflow.ellipsis),
+    );
+    final saveBtn = OutlinedButton.icon(
+      onPressed: onToggleFavorite,
+      icon: Icon(LucideIcons.heart,
+          size: 18,
+          color: isFavorite ? AppColors.gold : AppColors.textPrimary),
+      label: Text(save, maxLines: 1, overflow: TextOverflow.ellipsis),
+    );
+
+    if (stacked) {
+      return Column(
+        children: [
+          SizedBox(width: double.infinity, child: shareBtn),
+          const SizedBox(height: AppSpacing.x3),
+          SizedBox(width: double.infinity, child: saveBtn),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: shareBtn),
+        const SizedBox(width: AppSpacing.x3),
+        Expanded(child: saveBtn),
+      ],
     );
   }
 }
