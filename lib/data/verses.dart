@@ -1,9 +1,12 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Uma frase resolvida para um idioma. O [id] (`categoria#índice`) é ESTÁVEL
-/// entre idiomas — assim os favoritos funcionam mesmo trocando a língua, e o
-/// texto é mostrado no idioma atual.
+/// entre idiomas — os favoritos funcionam ao trocar de idioma; o texto é o do
+/// idioma atual.
 class Verse {
   const Verse(this.categoryId, this.index, this.text);
   final String categoryId;
@@ -13,7 +16,8 @@ class Verse {
   String get id => '$categoryId#$index';
 }
 
-/// Metadados de categoria. [id] é a chave de i18n (`cat.<id>.name`/`.desc`).
+/// Metadados de categoria. [id] é a chave de i18n (`cat.<id>.name`/`.desc`) e
+/// a chave do conteúdo nos JSON (`assets/frases/<lang>.json`).
 class VerseCategory {
   const VerseCategory(this.id, this.icon, this.asset);
   final String id;
@@ -21,219 +25,63 @@ class VerseCategory {
   final String asset;
 }
 
-/// Banco local de frases, por IDIOMA (conteúdo paralelo PT/EN — mesmo número por
-/// categoria, então o `índice` mapeia entre línguas). Idiomas sem conteúdo caem
-/// no inglês. A UI já é 100% internacionalizada; aqui é o CONTEÚDO.
+/// Banco local de frases carregado de `assets/frases/<lang>.json` (pt/en/es),
+/// ~5.900 frases ORIGINAIS por idioma em 14 categorias. Offline. `init()` deve
+/// ser chamado no startup (ver main) antes de usar.
 class VerseData {
   VerseData._();
 
   static const categories = <VerseCategory>[
     VerseCategory('motivacao', LucideIcons.mountain,
         'assets/landscapes/cat_motivacao.jpg'),
+    VerseCategory('superacao', LucideIcons.trendingUp,
+        'assets/landscapes/editor_bg03.jpg'),
+    VerseCategory('sucesso', LucideIcons.trophy,
+        'assets/landscapes/editor_bg02.jpg'),
+    VerseCategory('coragem', LucideIcons.flame,
+        'assets/landscapes/editor_bg01.jpg'),
+    VerseCategory('trabalho', LucideIcons.briefcase,
+        'assets/landscapes/cat_trabalho.jpg'),
     VerseCategory('amor', LucideIcons.heart, 'assets/landscapes/cat_amor.jpg'),
-    VerseCategory('reflexao', LucideIcons.feather,
-        'assets/landscapes/cat_reflexao.jpg'),
+    VerseCategory('amizade', LucideIcons.users,
+        'assets/landscapes/insp_coast.jpg'),
+    VerseCategory('gratidao', LucideIcons.sparkles,
+        'assets/landscapes/editor_bg07.jpg'),
     VerseCategory('felicidade', LucideIcons.sun,
         'assets/landscapes/cat_felicidade.jpg'),
     VerseCategory('vida', LucideIcons.sprout, 'assets/landscapes/cat_vida.jpg'),
-    VerseCategory('trabalho', LucideIcons.briefcase,
-        'assets/landscapes/cat_trabalho.jpg'),
+    VerseCategory('reflexao', LucideIcons.feather,
+        'assets/landscapes/cat_reflexao.jpg'),
+    VerseCategory('sabedoria', LucideIcons.bookOpen,
+        'assets/landscapes/editor_bg08.jpg'),
+    VerseCategory('paz', LucideIcons.leaf, 'assets/landscapes/editor_bg06.jpg'),
+    VerseCategory('esperanca', LucideIcons.sunrise,
+        'assets/landscapes/editor_bg04.jpg'),
   ];
 
-  static const _content = <String, Map<String, List<String>>>{
-    'pt': {
-      'motivacao': [
-        'Cada novo dia é uma oportunidade para recomeçar.',
-        'Sonhe, planeje e faça: o futuro se constrói hoje.',
-        'Pequenos passos também levam a grandes conquistas.',
-        'Acredite no seu potencial e dê o primeiro passo.',
-        'A persistência transforma o impossível em conquista.',
-        'Comece de onde você está, com o que você tem.',
-        'Sua única concorrência é quem você foi ontem.',
-        'Coragem não é a ausência de medo, é agir apesar dele.',
-      ],
-      'amor': [
-        'Ame de verdade e o resto encontra o seu lugar.',
-        'O amor se revela nos pequenos gestos de cada dia.',
-        'Onde há amor, há sempre um recomeço possível.',
-        'Amar é caminhar lado a lado, no mesmo ritmo.',
-        'O cuidado é a linguagem mais sincera do amor.',
-        'Perto de quem se ama, até o silêncio é bom.',
-        'O amor não procura o perfeito; cuida do real.',
-        'Amar bem começa por amar a si mesmo.',
-      ],
-      'reflexao': [
-        'A vida fica mais leve quando você valoriza o essencial.',
-        'Respire: nem tudo precisa de resposta agora.',
-        'O que te incomoda hoje pode te ensinar amanhã.',
-        'A paz começa quando você aceita o que não pode mudar.',
-        'Silencie o ruído e escute o que o coração diz.',
-        'Viver bem é saber o peso certo de cada coisa.',
-        'Às vezes, desacelerar é a forma mais rápida de chegar.',
-        'O tempo que você dedica a pensar nunca é perdido.',
-      ],
-      'felicidade': [
-        'A felicidade mora nas coisas simples do dia a dia.',
-        'Sorria: há motivos bons mesmo nos dias comuns.',
-        'Gratidão é o atalho mais curto para a alegria.',
-        'Colecione momentos, não motivos para reclamar.',
-        'Ser feliz é uma escolha que se faz todos os dias.',
-        'A leveza também é uma forma de coragem.',
-        'Encontre beleza no agora; é tudo o que existe.',
-        'Quem agradece o pouco, multiplica o muito.',
-      ],
-      'vida': [
-        'Viva o agora: o presente é o único tempo real.',
-        'A vida é feita de recomeços; permita-se tentar de novo.',
-        'Cada estação tem a sua beleza. Aproveite a sua.',
-        'Cresça no seu tempo, como tudo o que é vivo.',
-        'A vida recompensa quem não desiste no meio do caminho.',
-        'Faça da sua jornada algo que valha a pena contar.',
-        'O melhor dia para começar sempre foi hoje.',
-        'A vida floresce fora da zona de conforto.',
-      ],
-      'trabalho': [
-        'Foco no essencial: feito é melhor que perfeito.',
-        'Disciplina leva você aonde a motivação não alcança.',
-        'Grandes carreiras se constroem um dia de cada vez.',
-        'Trabalhe pelos seus sonhos, não só pelos dos outros.',
-        'A qualidade do seu foco define a do resultado.',
-        'Progresso vale mais que pressa.',
-        'Faça o simples bem feito e repita todos os dias.',
-        'Talento abre portas; o esforço as mantém abertas.',
-      ],
-    },
-    'en': {
-      'motivacao': [
-        'Every new day is a fresh chance to begin again.',
-        'Dream it, plan it, do it — the future is built today.',
-        'Small steps still lead to great achievements.',
-        'Believe in your potential and take the first step.',
-        'Persistence turns the impossible into done.',
-        'Start where you are, with what you have.',
-        'Your only competition is who you were yesterday.',
-        "Courage isn't the absence of fear — it's acting anyway.",
-      ],
-      'amor': [
-        'Love truly and everything else finds its place.',
-        'Love shows itself in the small gestures of each day.',
-        'Where there is love, a new beginning is always possible.',
-        'To love is to walk side by side, in the same rhythm.',
-        'Care is the most honest language of love.',
-        'Next to the one you love, even silence feels good.',
-        "Love doesn't seek the perfect; it tends the real.",
-        'Loving well begins with loving yourself.',
-      ],
-      'reflexao': [
-        'Life gets lighter when you value what truly matters.',
-        'Breathe — not everything needs an answer right now.',
-        'What troubles you today may teach you tomorrow.',
-        "Peace begins when you accept what you can't change.",
-        'Quiet the noise and listen to what your heart says.',
-        'Living well is knowing the right weight of each thing.',
-        'Sometimes slowing down is the fastest way to arrive.',
-        'Time spent thinking is never time wasted.',
-      ],
-      'felicidade': [
-        'Happiness lives in the simple things of every day.',
-        'Smile — there are good reasons even in ordinary days.',
-        'Gratitude is the shortest path to joy.',
-        'Collect moments, not reasons to complain.',
-        'Being happy is a choice you make every day.',
-        'Lightness is a form of courage too.',
-        "Find beauty in now; it's all there is.",
-        'Those who are thankful for little multiply the much.',
-      ],
-      'vida': [
-        'Live now — the present is the only real time.',
-        'Life is made of fresh starts; let yourself try again.',
-        'Every season has its beauty. Enjoy yours.',
-        'Grow at your own pace, like everything alive.',
-        "Life rewards those who don't quit halfway.",
-        'Make your journey a story worth telling.',
-        'The best day to begin has always been today.',
-        'Life blooms outside the comfort zone.',
-      ],
-      'trabalho': [
-        'Focus on what matters: done is better than perfect.',
-        "Discipline takes you where motivation can't.",
-        'Great careers are built one day at a time.',
-        "Work for your dreams, not only for others'.",
-        'The quality of your focus sets the quality of the result.',
-        'Progress is worth more than haste.',
-        'Do the simple thing well and repeat it every day.',
-        'Talent opens doors; effort keeps them open.',
-      ],
-    },
-    'es': {
-      'motivacao': [
-        'Cada nuevo día es una nueva oportunidad para empezar.',
-        'Sueña, planea y actúa: el futuro se construye hoy.',
-        'Los pequeños pasos también llevan a grandes logros.',
-        'Cree en tu potencial y da el primer paso.',
-        'La constancia convierte lo imposible en logrado.',
-        'Empieza donde estás, con lo que tienes.',
-        'Tu única competencia es quien fuiste ayer.',
-        'La valentía no es ausencia de miedo, es actuar a pesar de él.',
-      ],
-      'amor': [
-        'Ama de verdad y lo demás encontrará su lugar.',
-        'El amor se revela en los pequeños gestos de cada día.',
-        'Donde hay amor, siempre es posible volver a empezar.',
-        'Amar es caminar juntos, al mismo ritmo.',
-        'El cuidado es el lenguaje más sincero del amor.',
-        'Junto a quien amas, hasta el silencio es bueno.',
-        'El amor no busca lo perfecto; cuida lo real.',
-        'Amar bien empieza por amarte a ti mismo.',
-      ],
-      'reflexao': [
-        'La vida se vuelve más ligera cuando valoras lo esencial.',
-        'Respira: no todo necesita una respuesta ahora.',
-        'Lo que hoy te incomoda mañana puede enseñarte.',
-        'La paz empieza cuando aceptas lo que no puedes cambiar.',
-        'Silencia el ruido y escucha lo que dice tu corazón.',
-        'Vivir bien es saber el peso justo de cada cosa.',
-        'A veces, ir más despacio es la forma más rápida de llegar.',
-        'El tiempo que dedicas a pensar nunca se pierde.',
-      ],
-      'felicidade': [
-        'La felicidad vive en las cosas simples de cada día.',
-        'Sonríe: hay buenas razones incluso en los días comunes.',
-        'La gratitud es el camino más corto hacia la alegría.',
-        'Colecciona momentos, no motivos para quejarte.',
-        'Ser feliz es una elección que haces cada día.',
-        'La ligereza también es una forma de valentía.',
-        'Encuentra belleza en el ahora; es todo lo que existe.',
-        'Quien agradece lo poco, multiplica lo mucho.',
-      ],
-      'vida': [
-        'Vive el ahora: el presente es el único tiempo real.',
-        'La vida está hecha de nuevos comienzos; vuelve a intentarlo.',
-        'Cada estación tiene su belleza. Disfruta la tuya.',
-        'Crece a tu ritmo, como todo lo que está vivo.',
-        'La vida recompensa a quien no se rinde a mitad del camino.',
-        'Haz de tu camino una historia que valga la pena contar.',
-        'El mejor día para empezar siempre ha sido hoy.',
-        'La vida florece fuera de la zona de confort.',
-      ],
-      'trabalho': [
-        'Enfócate en lo esencial: hecho es mejor que perfecto.',
-        'La disciplina te lleva a donde la motivación no llega.',
-        'Las grandes carreras se construyen un día a la vez.',
-        'Trabaja por tus sueños, no solo por los de otros.',
-        'La calidad de tu enfoque define la del resultado.',
-        'El progreso vale más que la prisa.',
-        'Haz bien lo simple y repítelo cada día.',
-        'El talento abre puertas; el esfuerzo las mantiene abiertas.',
-      ],
-    },
-  };
+  static final Map<String, Map<String, List<String>>> _content = {};
+  static bool _loaded = false;
 
-  /// Idiomas com conteúdo próprio (os demais usam o inglês).
+  /// Carrega o conteúdo dos JSON (pt/en/es). Idempotente.
+  static Future<void> init() async {
+    if (_loaded) return;
+    for (final lang in const ['pt', 'en', 'es']) {
+      try {
+        final raw = await rootBundle.loadString('assets/frases/$lang.json');
+        final map = json.decode(raw) as Map<String, dynamic>;
+        _content[lang] = map.map(
+            (k, v) => MapEntry(k, (v as List).map((e) => e as String).toList()));
+      } catch (_) {
+        // idioma ausente: usa fallback
+      }
+    }
+    _loaded = true;
+  }
+
   static bool hasContent(String lang) => _content.containsKey(lang);
 
   static Map<String, List<String>> _data(String lang) =>
-      _content[lang] ?? _content['en']!;
+      _content[lang] ?? _content['en'] ?? _content['pt'] ?? const {};
 
   static List<Verse> allFor(String lang) {
     final data = _data(lang);
@@ -252,10 +100,11 @@ class VerseData {
     return [for (var i = 0; i < list.length; i++) Verse(id, i, list[i])];
   }
 
+  static int countFor(String lang, String id) => (_data(lang)[id] ?? const []).length;
+
   static VerseCategory categoryById(String id) =>
       categories.firstWhere((c) => c.id == id, orElse: () => categories.first);
 
-  /// Resolve um id estável (`cat#idx`) para o texto no idioma atual.
   static Verse? byId(String lang, String id) {
     final parts = id.split('#');
     if (parts.length != 2) return null;
@@ -270,12 +119,20 @@ class VerseData {
   /// Frase do dia — determinística por dia, no idioma pedido.
   static Verse ofToday(String lang) {
     final all = allFor(lang);
+    if (all.isEmpty) return const Verse('motivacao', 0, '');
     final now = DateTime.now();
     final seed = now.year * 1000 + _dayOfYear(now);
     return all[seed % all.length];
   }
 
-  /// Algumas frases para "Mais inspirações" (exclui a frase do dia).
+  /// Uma frase aleatória (botão "Nova frase").
+  static Verse random(String lang) {
+    final all = allFor(lang);
+    if (all.isEmpty) return const Verse('motivacao', 0, '');
+    final idx = DateTime.now().microsecondsSinceEpoch % all.length;
+    return all[idx];
+  }
+
   static List<Verse> moreInspirations(String lang, {int count = 6}) {
     final today = ofToday(lang);
     final list = allFor(lang).where((v) => v.id != today.id).toList();
