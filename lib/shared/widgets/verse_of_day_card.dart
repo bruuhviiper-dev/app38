@@ -19,12 +19,14 @@ class VerseOfDayCard extends StatelessWidget {
     required this.isFavorite,
     required this.onShare,
     required this.onToggleFavorite,
+    required this.onNewVerse,
   });
 
   final Verse verse;
   final bool isFavorite;
   final VoidCallback onShare;
   final VoidCallback onToggleFavorite;
+  final VoidCallback onNewVerse;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +47,22 @@ class VerseOfDayCard extends StatelessWidget {
                   children: [
                     _DayBadge(label: t.verseOfDay),
                     const Spacer(),
-                    const Icon(LucideIcons.sun,
-                        color: AppColors.gold, size: 22),
+                    Semantics(
+                      button: true,
+                      label: t.newVerse,
+                      child: Tooltip(
+                        message: t.newVerse,
+                        child: InkWell(
+                          onTap: onNewVerse,
+                          borderRadius: BorderRadius.circular(22),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(LucideIcons.refreshCw,
+                                color: AppColors.gold, size: 20),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 // Faixa da foto respirando antes da frase (constante pequena,

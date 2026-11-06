@@ -33,6 +33,7 @@ class T {
   String get dailyInspiration => _('dailyInspiration');
   String get share => _('share');
   String get save => _('save');
+  String get newVerse => _('newVerse');
   String get savedToFavorites => _('savedToFavorites');
   String get removedFromFavorites => _('removedFromFavorites');
 
@@ -166,6 +167,7 @@ class T {
       'dailyInspiration': 'Inspiração diária',
       'share': 'Compartilhar',
       'save': 'Salvar',
+      'newVerse': 'Nova frase',
       'savedToFavorites': 'Salvo nos favoritos',
       'removedFromFavorites': 'Removido dos favoritos',
       'exploreByCategory': 'Explore por categoria',
@@ -299,6 +301,7 @@ class T {
       'dailyInspiration': 'Daily inspiration',
       'share': 'Share',
       'save': 'Save',
+      'newVerse': 'New quote',
       'savedToFavorites': 'Saved to favorites',
       'removedFromFavorites': 'Removed from favorites',
       'exploreByCategory': 'Explore by category',
@@ -430,6 +433,7 @@ class T {
       'dailyInspiration': 'Inspiración diaria',
       'share': 'Compartir',
       'save': 'Guardar',
+      'newVerse': 'Nueva frase',
       'savedToFavorites': 'Guardado en favoritos',
       'removedFromFavorites': 'Quitado de favoritos',
       'exploreByCategory': 'Explora por categoría',

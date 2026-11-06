@@ -23,17 +23,23 @@ import 'verse_detail_screen.dart';
 /// Corpo da Home (usado pela MainShell). Preserva o design aprovado; agora com
 /// navegação real: categorias -> lista, inspiração -> detalhe, "Ver todas" ->
 /// aba Categorias, sino -> Configurações.
-class HomeBody extends StatelessWidget {
+class HomeBody extends StatefulWidget {
   const HomeBody({super.key, required this.onOpenCategories});
 
   final VoidCallback onOpenCategories;
 
-  void _openDetail(BuildContext context, Verse v) =>
-      Navigator.of(context).push(
+  @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  Verse? _override; // "Nova frase" (null = frase do dia)
+
+  void _openDetail(Verse v) => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => VerseDetailScreen(verse: v)),
       );
 
-  Future<void> _toggleFavorite(BuildContext context, Verse v) async {
+  Future<void> _toggleFavorite(Verse v) async {
     final t = T.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final added = context.read<AppState>().toggleFavorite(v.id);
@@ -48,14 +54,16 @@ class HomeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = T.of(context);
+    final lang = t.lang;
     final state = context.watch<AppState>();
-    final today = VerseData.ofToday(t.lang);
-    final categories = VerseData.categories;
-    final more = VerseData.moreInspirations(t.lang, count: 6);
 
-    if (VerseData.allFor(t.lang).isEmpty) {
+    if (VerseData.allFor(lang).isEmpty) {
       return _EmptyState(message: t.emptyVerses);
     }
+
+    final hero = _override ?? VerseData.ofToday(lang);
+    final featured = VerseData.categories.take(6).toList(); // destaque na Home
+    final more = VerseData.moreInspirations(lang, count: 6);
 
     return SafeArea(
       bottom: false,
@@ -71,21 +79,24 @@ class HomeBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.x5),
 
           VerseOfDayCard(
-            verse: today,
-            isFavorite: state.isFavorite(today.id),
-            onShare: () => ShareHelper.shareVerse(today, appName: t.appName),
-            onToggleFavorite: () => _toggleFavorite(context, today),
+            verse: hero,
+            isFavorite: state.isFavorite(hero.id),
+            onShare: () => ShareHelper.shareVerse(hero, appName: t.appName),
+            onToggleFavorite: () => _toggleFavorite(hero),
+            onNewVerse: () =>
+                setState(() => _override = VerseData.random(lang)),
           ),
           const SizedBox(height: AppSpacing.x6),
 
           SectionHeader(
             title: t.exploreByCategory,
             actionLabel: t.seeAll,
-            onAction: onOpenCategories,
+            onAction: widget.onOpenCategories,
           ),
           const SizedBox(height: AppSpacing.x3),
           CategoryGrid(
-            categories: categories,
+            categories: featured,
+            columns: 3,
             onTap: (cat) => Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (_) => CategoryVersesScreen(category: cat)),
@@ -101,8 +112,8 @@ class HomeBody extends StatelessWidget {
               thumb: Landscapes.inspThumb(i),
               isFavorite: state.isFavorite(more[i].id),
               onShare: () => ShareHelper.shareVerse(more[i], appName: t.appName),
-              onToggleFavorite: () => _toggleFavorite(context, more[i]),
-              onTap: () => _openDetail(context, more[i]),
+              onToggleFavorite: () => _toggleFavorite(more[i]),
+              onTap: () => _openDetail(more[i]),
             ),
             if (i != more.length - 1) const SizedBox(height: AppSpacing.cardGap),
             // Anúncio nativo "disfarçado" no feed (some p/ quem removeu anúncios).

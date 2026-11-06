@@ -7,16 +7,20 @@ import 'category_card.dart';
 /// Grade de categorias. O número de colunas se ADAPTA à largura (não é fixo em
 /// três): mais estreito -> 2 colunas; confortável -> 3.
 class CategoryGrid extends StatelessWidget {
-  const CategoryGrid({super.key, required this.categories, this.onTap});
+  const CategoryGrid(
+      {super.key, required this.categories, this.onTap, this.columns});
 
   final List<VerseCategory> categories;
   final void Function(VerseCategory category)? onTap;
+
+  /// Colunas fixas (ex.: 3 na Home, igual ao template). Se null, é responsivo.
+  final int? columns;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, c) {
-        final cols = c.maxWidth >= 420 ? 3 : 2;
+        final cols = columns ?? (c.maxWidth >= 420 ? 3 : 2);
         const gap = AppSpacing.cardGap;
         final cellW = (c.maxWidth - gap * (cols - 1)) / cols;
         // proporção ~1.0; altura mínima garante legibilidade do nome+descrição.
