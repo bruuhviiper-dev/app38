@@ -93,6 +93,19 @@ class T {
   String get saveError => _('saveError');
   String get backgroundsLabel => _('backgroundsLabel');
   String get filtersLabel => _('filtersLabel');
+  String get adjustmentsLabel => _('adjustmentsLabel');
+  String get textLabel => _('textLabel');
+  String get brightness => _('brightness');
+  String get contrast => _('contrast');
+  String get saturation => _('saturation');
+  String get intensity => _('intensity');
+  String get textSize => _('textSize');
+  String get textColor => _('textColor');
+  String get alignment => _('alignment');
+  String get reset => _('reset');
+  String get fmtStory => _('fmtStory');
+  String get fmtFeed => _('fmtFeed');
+  String get fmtStatus => _('fmtStatus');
   String get filterNone => _('filterNone');
   String get filterBlue => _('filterBlue');
   String get filterYellow => _('filterYellow');
@@ -213,6 +226,19 @@ class T {
       'saveError': 'Não foi possível salvar a imagem',
       'backgroundsLabel': 'Fundo',
       'filtersLabel': 'Filtros',
+      'adjustmentsLabel': 'Ajustes',
+      'textLabel': 'Texto',
+      'brightness': 'Brilho',
+      'contrast': 'Contraste',
+      'saturation': 'Saturação',
+      'intensity': 'Intensidade',
+      'textSize': 'Tamanho',
+      'textColor': 'Cor',
+      'alignment': 'Alinhamento',
+      'reset': 'Resetar',
+      'fmtStory': 'Story',
+      'fmtFeed': 'Feed',
+      'fmtStatus': 'Status',
       'filterNone': 'Original',
       'filterBlue': 'Azulado',
       'filterYellow': 'Amarelado',
@@ -347,6 +373,19 @@ class T {
       'saveError': "Couldn't save the image",
       'backgroundsLabel': 'Background',
       'filtersLabel': 'Filters',
+      'adjustmentsLabel': 'Adjust',
+      'textLabel': 'Text',
+      'brightness': 'Brightness',
+      'contrast': 'Contrast',
+      'saturation': 'Saturation',
+      'intensity': 'Intensity',
+      'textSize': 'Size',
+      'textColor': 'Color',
+      'alignment': 'Alignment',
+      'reset': 'Reset',
+      'fmtStory': 'Story',
+      'fmtFeed': 'Feed',
+      'fmtStatus': 'Status',
       'filterNone': 'Original',
       'filterBlue': 'Cool',
       'filterYellow': 'Warm',
@@ -479,6 +518,19 @@ class T {
       'saveError': 'No se pudo guardar la imagen',
       'backgroundsLabel': 'Fondo',
       'filtersLabel': 'Filtros',
+      'adjustmentsLabel': 'Ajustes',
+      'textLabel': 'Texto',
+      'brightness': 'Brillo',
+      'contrast': 'Contraste',
+      'saturation': 'Saturación',
+      'intensity': 'Intensidad',
+      'textSize': 'Tamaño',
+      'textColor': 'Color',
+      'alignment': 'Alineación',
+      'reset': 'Restablecer',
+      'fmtStory': 'Story',
+      'fmtFeed': 'Feed',
+      'fmtStatus': 'Status',
       'filterNone': 'Original',
       'filterBlue': 'Frío',
       'filterYellow': 'Cálido',
