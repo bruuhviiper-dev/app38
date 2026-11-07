@@ -52,7 +52,7 @@ class InspirationCard extends StatelessWidget {
                 child: SizedBox(
                   width: 64,
                   height: 64,
-                  child: LandscapeImage(asset: thumb),
+                  child: LandscapeImage(asset: thumb, thumb: 72),
                 ),
               ),
               const SizedBox(width: AppSpacing.x3),

@@ -29,7 +29,7 @@ class CategoryCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            LandscapeImage(asset: category.asset),
+            LandscapeImage(asset: category.asset, thumb: 240),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(

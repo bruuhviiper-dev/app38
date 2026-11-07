@@ -534,7 +534,7 @@ class _ControlPanel extends StatelessWidget {
                   color: i == selectedBg ? AppColors.gold : Colors.transparent,
                   width: 2.5),
             ),
-            child: LandscapeImage(asset: backgrounds[i]),
+            child: LandscapeImage(asset: backgrounds[i], thumb: 72),
           ),
         ),
       );

@@ -127,7 +127,7 @@ class _CategoryRow extends StatelessWidget {
                 child: SizedBox(
                   width: 56,
                   height: 56,
-                  child: LandscapeImage(asset: category.asset),
+                  child: LandscapeImage(asset: category.asset, thumb: 72),
                 ),
               ),
               const SizedBox(width: AppSpacing.x3),
