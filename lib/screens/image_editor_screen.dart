@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -84,10 +86,11 @@ class _Format {
   final double ratio;
 }
 
-/// Editor PRO: cria uma imagem com a frase sobre uma paisagem. Formatos,
-/// filtros com intensidade, ajustes (brilho/contraste/saturação), texto
-/// (cor/tamanho/alinhamento), resetar, compartilhar e salvar. Preview em tempo
-/// real; export em alta (pixelRatio 3). Não altera a lógica/favoritos.
+/// Editor PRO: cria uma imagem com a frase sobre um FUNDO (foto, cor sólida,
+/// degradê ou textura), com formatos, 12 filtros (intensidade), ajustes
+/// (brilho/contraste/saturação), texturas sobrepostas e texto
+/// (cor/tamanho/alinhamento). Preview em tempo real; export em alta
+/// (pixelRatio 3). Não altera a lógica/favoritos.
 class ImageEditorScreen extends StatefulWidget {
   const ImageEditorScreen({super.key, required this.verse});
   final Verse verse;
@@ -99,6 +102,11 @@ class ImageEditorScreen extends StatefulWidget {
 class _ImageEditorScreenState extends State<ImageEditorScreen> {
   final _cardKey = GlobalKey();
   late int _bg = Landscapes.editorIndexForCategory(widget.verse.categoryId);
+  int _bgKind = 0; // 0=foto, 1=cor, 2=gradiente
+  int _bgSub = 0; // sub-aba visível: 0=fotos 1=cores 2=degradês 3=texturas
+  int _bgColor = 0;
+  int _bgGradient = 0;
+  int _texture = 0; // 0=nenhuma
   int _filter = 0;
   double _intensity = 1.0;
   double _brightness = 0.0; // -0.5..0.5
@@ -124,14 +132,53 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     Color(0xFFFFD9C2),
   ];
 
-  List<_ImgFilter> _filters(T t) => [
-        _ImgFilter(t.filterNone),
-        _ImgFilter(t.filterBlue, tint: const Color(0xFF2D5FD6)),
-        _ImgFilter(t.filterYellow, tint: const Color(0xFFFFAC32)),
-        _ImgFilter(t.filterRed, tint: const Color(0xFFE2523A)),
-        _ImgFilter(t.filterVintage, matrix: _sepia, tint: const Color(0xFFB98A3C)),
-        _ImgFilter(t.filterBW, matrix: _grayscale),
-      ];
+  // Fundos de COR sólida (curados).
+  static const _solidColors = <Color>[
+    Color(0xFF06111F), // navy
+    Color(0xFF14263A),
+    Color(0xFF2D5FD6), // azul
+    Color(0xFF0E7C66), // teal
+    Color(0xFF7A3B8E), // roxo
+    Color(0xFFB23A48), // vinho
+    Color(0xFFD98324), // âmbar
+    Color(0xFF2E2E2E), // carvão
+    Color(0xFFF2E9DE), // creme
+    Color(0xFF111111), // preto
+  ];
+
+  // Fundos de GRADIENTE (curados).
+  static const _gradients = <List<Color>>[
+    [Color(0xFF0F2027), Color(0xFF2C5364)],
+    [Color(0xFF141E30), Color(0xFF243B55)],
+    [Color(0xFF42275A), Color(0xFF734B6D)],
+    [Color(0xFFDD5E89), Color(0xFFF7BB97)],
+    [Color(0xFF2193B0), Color(0xFF6DD5ED)],
+    [Color(0xFFCC2B5E), Color(0xFF753A88)],
+    [Color(0xFFFF512F), Color(0xFFDD2476)],
+    [Color(0xFF1D976C), Color(0xFF93F9B9)],
+  ];
+
+  List<_ImgFilter> _filters(T t) {
+    final fade = _mul(_contrastBrightness(0.82, 0.10), _saturationMatrix(0.88));
+    final drama =
+        _mul(_contrastBrightness(1.35, -0.04), _saturationMatrix(1.25));
+    final noir = _mul(_contrastBrightness(1.28, 0.0), _grayscale);
+    return [
+      _ImgFilter(t.filterNone),
+      _ImgFilter(t.filterBlue, tint: const Color(0xFF2D5FD6)),
+      _ImgFilter(t.filterYellow, tint: const Color(0xFFFFAC32)),
+      _ImgFilter(t.filterRed, tint: const Color(0xFFE2523A)),
+      _ImgFilter(t.filterWarm, tint: const Color(0xFFFF8A3D)),
+      _ImgFilter(t.filterMint, tint: const Color(0xFF2BD1A8)),
+      _ImgFilter(t.filterPurple, tint: const Color(0xFF8E5BD6)),
+      _ImgFilter(t.filterVintage,
+          matrix: _sepia, tint: const Color(0xFFB98A3C)),
+      _ImgFilter(t.filterFade, matrix: fade),
+      _ImgFilter(t.filterDrama, matrix: drama),
+      _ImgFilter(t.filterNoir, matrix: noir),
+      _ImgFilter(t.filterBW, matrix: _grayscale),
+    ];
+  }
 
   void _reset() => setState(() {
         _filter = 0;
@@ -139,6 +186,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
         _brightness = 0.0;
         _contrast = 1.0;
         _saturation = 1.0;
+        _texture = 0;
         _textColor = 0;
         _textScale = 1.0;
         _align = TextAlign.center;
@@ -181,13 +229,32 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     return ColorFilter.matrix(m);
   }
 
+  /// Widget-base do fundo ANTES do filtro de cor (foto / cor / gradiente).
+  Widget _baseChild() {
+    switch (_bgKind) {
+      case 1:
+        return ColoredBox(color: _solidColors[_bgColor]);
+      case 2:
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: _gradients[_bgGradient],
+            ),
+          ),
+        );
+      default:
+        return LandscapeImage(asset: Landscapes.editorBackgrounds[_bg]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = T.of(context);
     final p = Palette.of(context);
     final filters = _filters(t);
     final f = filters[_filter];
-    final bgAsset = Landscapes.editorBackgrounds[_bg];
 
     return Scaffold(
       appBar: AppBar(
@@ -221,12 +288,17 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                           children: [
                             ColorFiltered(
                               colorFilter: _buildColorFilter(f),
-                              child: LandscapeImage(asset: bgAsset),
+                              child: _baseChild(),
                             ),
                             if (f.tint != null)
                               ColoredBox(
                                 color: f.tint!
                                     .withValues(alpha: 0.26 * _intensity),
+                              ),
+                            if (_texture != 0)
+                              Positioned.fill(
+                                child: CustomPaint(
+                                    painter: _TexturePainter(_texture)),
                               ),
                             const DecoratedBox(
                               decoration: BoxDecoration(
@@ -296,8 +368,28 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
             tab: _tab,
             onTab: (i) => setState(() => _tab = i),
             backgrounds: Landscapes.editorBackgrounds,
+            bgKind: _bgKind,
+            bgSub: _bgSub,
+            onBgSub: (i) => setState(() => _bgSub = i),
             selectedBg: _bg,
-            onBg: (i) => setState(() => _bg = i),
+            onBg: (i) => setState(() {
+              _bgKind = 0;
+              _bg = i;
+            }),
+            solidColors: _solidColors,
+            selectedColor: _bgColor,
+            onColor: (i) => setState(() {
+              _bgKind = 1;
+              _bgColor = i;
+            }),
+            gradients: _gradients,
+            selectedGradient: _bgGradient,
+            onGradient: (i) => setState(() {
+              _bgKind = 2;
+              _bgGradient = i;
+            }),
+            texture: _texture,
+            onTexture: (i) => setState(() => _texture = i),
             filters: filters,
             selectedFilter: _filter,
             onFilter: (i) => setState(() => _filter = i),
@@ -404,8 +496,19 @@ class _ControlPanel extends StatelessWidget {
     required this.tab,
     required this.onTab,
     required this.backgrounds,
+    required this.bgKind,
+    required this.bgSub,
+    required this.onBgSub,
     required this.selectedBg,
     required this.onBg,
+    required this.solidColors,
+    required this.selectedColor,
+    required this.onColor,
+    required this.gradients,
+    required this.selectedGradient,
+    required this.onGradient,
+    required this.texture,
+    required this.onTexture,
     required this.filters,
     required this.selectedFilter,
     required this.onFilter,
@@ -429,8 +532,19 @@ class _ControlPanel extends StatelessWidget {
   final int tab;
   final ValueChanged<int> onTab;
   final List<String> backgrounds;
+  final int bgKind;
+  final int bgSub;
+  final ValueChanged<int> onBgSub;
   final int selectedBg;
   final ValueChanged<int> onBg;
+  final List<Color> solidColors;
+  final int selectedColor;
+  final ValueChanged<int> onColor;
+  final List<List<Color>> gradients;
+  final int selectedGradient;
+  final ValueChanged<int> onGradient;
+  final int texture;
+  final ValueChanged<int> onTexture;
   final List<_ImgFilter> filters;
   final int selectedFilter;
   final ValueChanged<int> onFilter;
@@ -499,7 +613,7 @@ class _ControlPanel extends StatelessWidget {
             ],
           ),
           Divider(height: 1, color: p.border),
-          SizedBox(height: 118, child: _tabContent(context, t, p)),
+          SizedBox(height: 124, child: _tabContent(context, t, p)),
         ],
       ),
     );
@@ -508,13 +622,67 @@ class _ControlPanel extends StatelessWidget {
   Widget _tabContent(BuildContext context, T t, Palette p) {
     switch (tab) {
       case 0:
-        return _thumbs(context);
+        return _bgTab(context, t, p);
       case 1:
         return _filtersTab(context, t, p);
       case 2:
         return _adjustTab(t, p);
       default:
         return _textTab(t, p);
+    }
+  }
+
+  // ---- Aba FUNDO: sub-seletor (Fotos/Cores/Degradês/Texturas) + conteúdo ----
+  Widget _bgTab(BuildContext context, T t, Palette p) {
+    final segs = [t.bgPhotos, t.bgColors, t.bgGradients, t.bgTextures];
+    // sub-aba corrente: texturas = índice 3 (independente de bgKind do fundo).
+    return Column(
+      children: [
+        SizedBox(
+          height: 32,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.x3, vertical: 4),
+            itemCount: segs.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 6),
+            itemBuilder: (context, i) {
+              final sel = bgSub == i;
+              return GestureDetector(
+                onTap: () => onBgSub(i),
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: sel ? AppColors.gold : p.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: sel ? AppColors.gold : p.border),
+                  ),
+                  child: Text(segs[i],
+                      style: AppTextStyles.caption.copyWith(
+                          fontSize: 11,
+                          color: sel ? AppColors.bg : p.textSecondary)),
+                ),
+              );
+            },
+          ),
+        ),
+        Expanded(child: _bgSubBody(context, t, p)),
+      ],
+    );
+  }
+
+  Widget _bgSubBody(BuildContext context, T t, Palette p) {
+    switch (bgSub) {
+      case 1:
+        return _colorsRow(p);
+      case 2:
+        return _gradientsRow(p);
+      case 3:
+        return _texturesRow(t, p);
+      default:
+        return _thumbs(context);
     }
   }
 
@@ -531,13 +699,120 @@ class _ControlPanel extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadii.chip),
               border: Border.all(
-                  color: i == selectedBg ? AppColors.gold : Colors.transparent,
+                  color: (bgKind == 0 && i == selectedBg)
+                      ? AppColors.gold
+                      : Colors.transparent,
                   width: 2.5),
             ),
             child: LandscapeImage(asset: backgrounds[i], thumb: 72),
           ),
         ),
       );
+
+  Widget _colorsRow(Palette p) => ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.all(AppSpacing.x3),
+        itemCount: solidColors.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, i) => GestureDetector(
+          onTap: () => onColor(i),
+          child: Container(
+            width: 58,
+            decoration: BoxDecoration(
+              color: solidColors[i],
+              borderRadius: BorderRadius.circular(AppRadii.chip),
+              border: Border.all(
+                  color: (bgKind == 1 && i == selectedColor)
+                      ? AppColors.gold
+                      : p.border,
+                  width: (bgKind == 1 && i == selectedColor) ? 2.5 : 1),
+            ),
+          ),
+        ),
+      );
+
+  Widget _gradientsRow(Palette p) => ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.all(AppSpacing.x3),
+        itemCount: gradients.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, i) => GestureDetector(
+          onTap: () => onGradient(i),
+          child: Container(
+            width: 58,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradients[i],
+              ),
+              borderRadius: BorderRadius.circular(AppRadii.chip),
+              border: Border.all(
+                  color: (bgKind == 2 && i == selectedGradient)
+                      ? AppColors.gold
+                      : p.border,
+                  width: (bgKind == 2 && i == selectedGradient) ? 2.5 : 1),
+            ),
+          ),
+        ),
+      );
+
+  Widget _texturesRow(T t, Palette p) {
+    final labels = [
+      t.texNone,
+      t.texGrain,
+      t.texDots,
+      t.texLines,
+      t.texBokeh,
+      t.texGlow,
+      t.texVignette,
+    ];
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.all(AppSpacing.x3),
+      itemCount: labels.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      itemBuilder: (context, i) {
+        final sel = texture == i;
+        return GestureDetector(
+          onTap: () => onTexture(i),
+          child: Container(
+            width: 70,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceHigh,
+              borderRadius: BorderRadius.circular(AppRadii.chip),
+              border: Border.all(
+                  color: sel ? AppColors.gold : p.border,
+                  width: sel ? 2.5 : 1),
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (i != 0)
+                  CustomPaint(painter: _TexturePainter(i, preview: true)),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.black.withValues(alpha: 0.35),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(labels[i],
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                            fontSize: 10,
+                            color: sel ? AppColors.gold : Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _filtersTab(BuildContext context, T t, Palette p) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x3),
@@ -659,6 +934,113 @@ class _ControlPanel extends StatelessWidget {
               color: align == a ? AppColors.gold : AppColors.textSecondary),
         ),
       );
+}
+
+/// Textura procedural (sem assets): grão, pontos, linhas, bokeh, brilho e
+/// vinheta. Determinística (seed fixo) para o preview bater com o export.
+class _TexturePainter extends CustomPainter {
+  _TexturePainter(this.kind, {this.preview = false});
+  final int kind; // 1=grão 2=pontos 3=linhas 4=bokeh 5=brilho 6=vinheta
+  final bool preview;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    switch (kind) {
+      case 1:
+        _grain(canvas, size);
+        break;
+      case 2:
+        _dots(canvas, size);
+        break;
+      case 3:
+        _lines(canvas, size);
+        break;
+      case 4:
+        _bokeh(canvas, size);
+        break;
+      case 5:
+        _glow(canvas, size);
+        break;
+      case 6:
+        _vignette(canvas, size);
+        break;
+    }
+  }
+
+  void _grain(Canvas c, Size s) {
+    final rnd = math.Random(7);
+    final paint = Paint();
+    final n = (s.width * s.height / 70).clamp(150, 5000).toInt();
+    for (var i = 0; i < n; i++) {
+      final x = rnd.nextDouble() * s.width;
+      final y = rnd.nextDouble() * s.height;
+      final bright = rnd.nextBool();
+      paint.color = (bright ? Colors.white : Colors.black)
+          .withValues(alpha: 0.04 + rnd.nextDouble() * 0.06);
+      c.drawRect(Rect.fromLTWH(x, y, 1.3, 1.3), paint);
+    }
+  }
+
+  void _dots(Canvas c, Size s) {
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.10);
+    final gap = preview ? 8.0 : 15.0;
+    final r = preview ? 1.0 : 1.7;
+    for (double y = gap; y < s.height; y += gap) {
+      for (double x = gap; x < s.width; x += gap) {
+        c.drawCircle(Offset(x, y), r, paint);
+      }
+    }
+  }
+
+  void _lines(Canvas c, Size s) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.07)
+      ..strokeWidth = 1.2;
+    final gap = preview ? 9.0 : 16.0;
+    for (double x = -s.height; x < s.width; x += gap) {
+      c.drawLine(Offset(x, 0), Offset(x + s.height, s.height), paint);
+    }
+  }
+
+  void _bokeh(Canvas c, Size s) {
+    final rnd = math.Random(11);
+    final count = preview ? 7 : 16;
+    for (var i = 0; i < count; i++) {
+      final x = rnd.nextDouble() * s.width;
+      final y = rnd.nextDouble() * s.height;
+      final r = (preview ? 3 : 8) + rnd.nextDouble() * (preview ? 8 : 28);
+      final paint = Paint()
+        ..color = Colors.white
+            .withValues(alpha: 0.05 + rnd.nextDouble() * 0.09)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.4);
+      c.drawCircle(Offset(x, y), r, paint);
+    }
+  }
+
+  void _glow(Canvas c, Size s) {
+    final rect = Rect.fromCircle(
+        center: Offset(s.width * 0.8, s.height * 0.2), radius: s.width * 0.75);
+    final paint = Paint()
+      ..shader = const RadialGradient(
+        colors: [Color(0x66FFE6B0), Color(0x00FFE6B0)],
+      ).createShader(rect);
+    c.drawRect(Offset.zero & s, paint);
+  }
+
+  void _vignette(Canvas c, Size s) {
+    final rect =
+        Rect.fromCircle(center: s.center(Offset.zero), radius: s.longestSide * 0.72);
+    final paint = Paint()
+      ..shader = const RadialGradient(
+        colors: [Color(0x00000000), Color(0x99000000)],
+        stops: [0.55, 1.0],
+      ).createShader(rect);
+    c.drawRect(Offset.zero & s, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TexturePainter old) =>
+      old.kind != kind || old.preview != preview;
 }
 
 class _SliderRow extends StatelessWidget {

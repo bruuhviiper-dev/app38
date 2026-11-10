@@ -112,6 +112,25 @@ class T {
   String get filterRed => _('filterRed');
   String get filterVintage => _('filterVintage');
   String get filterBW => _('filterBW');
+  String get filterWarm => _('filterWarm');
+  String get filterNoir => _('filterNoir');
+  String get filterFade => _('filterFade');
+  String get filterDrama => _('filterDrama');
+  String get filterMint => _('filterMint');
+  String get filterPurple => _('filterPurple');
+  // Tipos de fundo do editor
+  String get bgPhotos => _('bgPhotos');
+  String get bgColors => _('bgColors');
+  String get bgGradients => _('bgGradients');
+  String get bgTextures => _('bgTextures');
+  // Texturas
+  String get texNone => _('texNone');
+  String get texGrain => _('texGrain');
+  String get texDots => _('texDots');
+  String get texLines => _('texLines');
+  String get texBokeh => _('texBokeh');
+  String get texGlow => _('texGlow');
+  String get texVignette => _('texVignette');
 
   // Favoritos
   String get favoritesTitle => _('favoritesTitle');
@@ -245,6 +264,23 @@ class T {
       'filterRed': 'Avermelhado',
       'filterVintage': 'Vintage',
       'filterBW': 'P&B',
+      'filterWarm': 'Quente',
+      'filterNoir': 'Noir',
+      'filterFade': 'Desbotado',
+      'filterDrama': 'Drama',
+      'filterMint': 'Menta',
+      'filterPurple': 'Roxo',
+      'bgPhotos': 'Fotos',
+      'bgColors': 'Cores',
+      'bgGradients': 'Degradês',
+      'bgTextures': 'Texturas',
+      'texNone': 'Nenhuma',
+      'texGrain': 'Grão',
+      'texDots': 'Pontos',
+      'texLines': 'Linhas',
+      'texBokeh': 'Bokeh',
+      'texGlow': 'Brilho',
+      'texVignette': 'Vinheta',
       'favoritesTitle': 'Favoritos',
       'favText': 'Texto',
       'favByCategory': 'Por categoria',
@@ -392,6 +428,23 @@ class T {
       'filterRed': 'Sunset',
       'filterVintage': 'Vintage',
       'filterBW': 'B&W',
+      'filterWarm': 'Warm',
+      'filterNoir': 'Noir',
+      'filterFade': 'Fade',
+      'filterDrama': 'Drama',
+      'filterMint': 'Mint',
+      'filterPurple': 'Purple',
+      'bgPhotos': 'Photos',
+      'bgColors': 'Colors',
+      'bgGradients': 'Gradients',
+      'bgTextures': 'Textures',
+      'texNone': 'None',
+      'texGrain': 'Grain',
+      'texDots': 'Dots',
+      'texLines': 'Lines',
+      'texBokeh': 'Bokeh',
+      'texGlow': 'Glow',
+      'texVignette': 'Vignette',
       'favoritesTitle': 'Favorites',
       'favText': 'Text',
       'favByCategory': 'By category',
@@ -537,6 +590,23 @@ class T {
       'filterRed': 'Atardecer',
       'filterVintage': 'Vintage',
       'filterBW': 'B/N',
+      'filterWarm': 'Cálido',
+      'filterNoir': 'Noir',
+      'filterFade': 'Desvaído',
+      'filterDrama': 'Drama',
+      'filterMint': 'Menta',
+      'filterPurple': 'Púrpura',
+      'bgPhotos': 'Fotos',
+      'bgColors': 'Colores',
+      'bgGradients': 'Degradados',
+      'bgTextures': 'Texturas',
+      'texNone': 'Ninguna',
+      'texGrain': 'Grano',
+      'texDots': 'Puntos',
+      'texLines': 'Líneas',
+      'texBokeh': 'Bokeh',
+      'texGlow': 'Brillo',
+      'texVignette': 'Viñeta',
       'favoritesTitle': 'Favoritos',
       'favText': 'Texto',
       'favByCategory': 'Por categoría',
