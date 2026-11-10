@@ -166,6 +166,8 @@ class T {
   String get rateApp => _('rateApp');
   String get privacy => _('privacy');
   String get terms => _('terms');
+  String get privacyBody => _('privacyBody');
+  String get termsBody => _('termsBody');
   String get version => _('version');
   String get preferences => _('preferences');
   String get general => _('general');
@@ -310,6 +312,31 @@ class T {
       'rateApp': 'Avaliar na Play Store',
       'privacy': 'Política de Privacidade',
       'terms': 'Termos de Uso',
+      'privacyBody':
+          'Respeitamos a sua privacidade. Este aplicativo funciona totalmente '
+              'offline e NÃO coleta, armazena nem compartilha dados pessoais.\n\n'
+              '• Preferências e favoritos ficam salvos apenas no seu aparelho.\n'
+              '• Não exigimos cadastro, login ou acesso à sua localização, '
+              'contatos ou arquivos.\n'
+              '• Podemos exibir anúncios do Google AdMob. O AdMob pode usar '
+              'identificadores do dispositivo para mostrar anúncios; consulte a '
+              'política do Google em policies.google.com/privacy. Você pode '
+              'remover os anúncios com a compra dentro do app.\n'
+              '• Imagens criadas são salvas apenas onde você escolher '
+              'compartilhar ou guardar.\n\n'
+              'Em caso de dúvidas sobre privacidade, entre em contato pelo '
+              'e-mail de suporte informado na Play Store.',
+      'termsBody':
+          'Ao usar este aplicativo, você concorda com estes termos.\n\n'
+              '• O app é fornecido "como está", para uso pessoal e não '
+              'comercial, com fins de inspiração e entretenimento.\n'
+              '• As frases e imagens podem ser compartilhadas livremente para '
+              'uso pessoal; não as revenda como um produto concorrente.\n'
+              '• Não nos responsabilizamos por decisões tomadas com base no '
+              'conteúdo exibido.\n'
+              '• Podemos atualizar recursos, conteúdo e estes termos a qualquer '
+              'momento, com a nova versão publicada na Play Store.\n\n'
+              'Se não concordar com os termos, basta desinstalar o aplicativo.',
       'version': 'Versão',
       'preferences': 'PREFERÊNCIAS',
       'general': 'GERAL',
@@ -474,6 +501,31 @@ class T {
       'rateApp': 'Rate on Play Store',
       'privacy': 'Privacy Policy',
       'terms': 'Terms of Use',
+      'privacyBody':
+          'We respect your privacy. This app works fully offline and does NOT '
+              'collect, store or share personal data.\n\n'
+              '• Preferences and favorites are saved only on your device.\n'
+              '• We do not require sign-up, login or access to your location, '
+              'contacts or files.\n'
+              '• We may show ads via Google AdMob. AdMob may use device '
+              'identifiers to serve ads; see Google\'s policy at '
+              'policies.google.com/privacy. You can remove ads with the in-app '
+              'purchase.\n'
+              '• Images you create are saved only where you choose to share or '
+              'store them.\n\n'
+              'For any privacy questions, contact us at the support e-mail '
+              'listed on the Play Store.',
+      'termsBody':
+          'By using this app, you agree to these terms.\n\n'
+              '• The app is provided "as is", for personal, non-commercial use, '
+              'for inspiration and entertainment.\n'
+              '• Quotes and images may be shared freely for personal use; do '
+              'not resell them as a competing product.\n'
+              '• We are not liable for decisions made based on the content '
+              'shown.\n'
+              '• We may update features, content and these terms at any time, '
+              'with the new version published on the Play Store.\n\n'
+              'If you do not agree with the terms, simply uninstall the app.',
       'version': 'Version',
       'preferences': 'PREFERENCES',
       'general': 'GENERAL',
@@ -636,6 +688,34 @@ class T {
       'rateApp': 'Valorar en Play Store',
       'privacy': 'Política de Privacidad',
       'terms': 'Términos de Uso',
+      'privacyBody':
+          'Respetamos tu privacidad. Esta aplicación funciona totalmente sin '
+              'conexión y NO recopila, almacena ni comparte datos personales.\n\n'
+              '• Las preferencias y favoritos se guardan solo en tu '
+              'dispositivo.\n'
+              '• No exigimos registro, inicio de sesión ni acceso a tu '
+              'ubicación, contactos o archivos.\n'
+              '• Podemos mostrar anuncios de Google AdMob. AdMob puede usar '
+              'identificadores del dispositivo para mostrar anuncios; consulta '
+              'la política de Google en policies.google.com/privacy. Puedes '
+              'quitar los anuncios con la compra dentro de la app.\n'
+              '• Las imágenes que creas se guardan solo donde elijas '
+              'compartirlas o guardarlas.\n\n'
+              'Para dudas sobre privacidad, escríbenos al correo de soporte '
+              'indicado en la Play Store.',
+      'termsBody':
+          'Al usar esta aplicación, aceptas estos términos.\n\n'
+              '• La app se ofrece "tal cual", para uso personal y no '
+              'comercial, con fines de inspiración y entretenimiento.\n'
+              '• Las frases e imágenes pueden compartirse libremente para uso '
+              'personal; no las revendas como un producto competidor.\n'
+              '• No nos responsabilizamos por decisiones tomadas con base en el '
+              'contenido mostrado.\n'
+              '• Podemos actualizar funciones, contenido y estos términos en '
+              'cualquier momento, con la nueva versión publicada en la Play '
+              'Store.\n\n'
+              'Si no estás de acuerdo con los términos, desinstala la '
+              'aplicación.',
       'version': 'Versión',
       'preferences': 'PREFERENCIAS',
       'general': 'GENERAL',
@@ -683,6 +763,10 @@ class T {
 
   /// Os 64 idiomas-alvo da publicação. A UI aceita todos; os que ainda não
   /// têm mapa em [_data] caem no inglês automaticamente (sem quebrar layout).
+  /// Idiomas REALMENTE traduzidos (UI + conteúdo). O seletor de idioma só
+  /// oferece estes; [targetLanguages] fica como alvo de expansão futura.
+  static const List<String> uiLanguages = ['pt', 'en', 'es'];
+
   static const List<String> targetLanguages = [
     'pt', 'en', 'es', 'fr', 'de', 'it', 'nl', 'pl', 'ru', 'uk', 'tr', 'ar',
     'fa', 'he', 'hi', 'bn', 'ur', 'ta', 'te', 'mr', 'gu', 'kn', 'ml', 'pa',

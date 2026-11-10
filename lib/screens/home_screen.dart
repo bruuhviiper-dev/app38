@@ -10,23 +10,23 @@ import '../data/verses.dart';
 import '../l10n/strings.dart';
 import '../services/app_state.dart';
 import '../services/share_helper.dart';
+import '../services/verse_image_share.dart';
 import '../shared/widgets/category_grid.dart';
 import '../shared/widgets/home_header.dart';
 import '../shared/widgets/inspiration_card.dart';
 import '../shared/widgets/native_ad.dart';
 import '../shared/widgets/section_header.dart';
 import '../shared/widgets/verse_of_day_card.dart';
+import 'all_verses_screen.dart';
 import 'category_verses_screen.dart';
 import 'settings_screen.dart';
 import 'verse_detail_screen.dart';
 
 /// Corpo da Home (usado pela MainShell). Preserva o design aprovado; agora com
-/// navegação real: categorias -> lista, inspiração -> detalhe, "Ver todas" ->
-/// aba Categorias, sino -> Configurações.
+/// navegação real: todas as 14 categorias, inspiração -> detalhe, "Ver todas"
+/// (inspirações) -> lista completa, sino -> Configurações.
 class HomeBody extends StatefulWidget {
-  const HomeBody({super.key, required this.onOpenCategories});
-
-  final VoidCallback onOpenCategories;
+  const HomeBody({super.key});
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
@@ -62,7 +62,7 @@ class _HomeBodyState extends State<HomeBody> {
     }
 
     final hero = _override ?? VerseData.ofToday(lang);
-    final featured = VerseData.categories.take(6).toList(); // destaque na Home
+    final featured = VerseData.categories; // todas as 14 na Home
     final more = VerseData.moreInspirations(lang, count: 6);
 
     return SafeArea(
@@ -81,18 +81,14 @@ class _HomeBodyState extends State<HomeBody> {
           VerseOfDayCard(
             verse: hero,
             isFavorite: state.isFavorite(hero.id),
-            onShare: () => ShareHelper.shareVerse(hero, appName: t.appName),
+            onShare: () => VerseImageShare.share(context, hero, appName: t.appName),
             onToggleFavorite: () => _toggleFavorite(hero),
             onNewVerse: () =>
                 setState(() => _override = VerseData.random(lang)),
           ),
           const SizedBox(height: AppSpacing.x6),
 
-          SectionHeader(
-            title: t.exploreByCategory,
-            actionLabel: t.seeAll,
-            onAction: widget.onOpenCategories,
-          ),
+          SectionHeader(title: t.exploreByCategory),
           const SizedBox(height: AppSpacing.x3),
           CategoryGrid(
             categories: featured,
@@ -104,7 +100,13 @@ class _HomeBodyState extends State<HomeBody> {
           ),
           const SizedBox(height: AppSpacing.x6),
 
-          SectionHeader(title: t.moreInspirations),
+          SectionHeader(
+            title: t.moreInspirations,
+            actionLabel: t.seeAll,
+            onAction: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AllVersesScreen()),
+            ),
+          ),
           const SizedBox(height: AppSpacing.x3),
           for (var i = 0; i < more.length; i++) ...[
             InspirationCard(

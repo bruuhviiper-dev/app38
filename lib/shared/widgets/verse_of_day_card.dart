@@ -119,9 +119,11 @@ class _DayBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColors.goldPill,
+        // Fundo escuro opaco (não translúcido) p/ o selo NUNCA "sumir" sobre
+        // fotos claras (céu/neve).
+        color: Colors.black.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(AppRadii.pill),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.7)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

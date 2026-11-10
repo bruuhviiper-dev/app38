@@ -117,12 +117,12 @@ class SettingsScreen extends StatelessWidget {
           _Tile(
             icon: LucideIcons.shield,
             label: t.privacy,
-            onTap: () => _openInfo(context, t.privacy),
+            onTap: () => _openInfo(context, t.privacy, t.privacyBody),
           ),
           _Tile(
             icon: LucideIcons.fileText,
             label: t.terms,
-            onTap: () => _openInfo(context, t.terms),
+            onTap: () => _openInfo(context, t.terms, t.termsBody),
           ),
           const SizedBox(height: AppSpacing.x5),
           Center(
@@ -169,7 +169,7 @@ class SettingsScreen extends StatelessWidget {
     final t = T.of(context);
     final options = <(String, String)>[
       (systemSentinel, t.systemDefault),
-      for (final code in T.targetLanguages) (code, _langName(code)),
+      for (final code in T.uiLanguages) (code, _langName(code)),
     ];
     final choice = await _chooser<String>(
       context,
@@ -198,9 +198,9 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _openInfo(BuildContext context, String title) {
+  Future<void> _openInfo(BuildContext context, String title, String body) {
     return Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => _InfoScreen(title: title)),
+      MaterialPageRoute(builder: (_) => _InfoScreen(title: title, body: body)),
     );
   }
 }
@@ -382,10 +382,11 @@ class _SwitchTile extends StatelessWidget {
   }
 }
 
-/// Página simples de Política de Privacidade / Termos (texto base do template).
+/// Página de Política de Privacidade / Termos (texto real, traduzido).
 class _InfoScreen extends StatelessWidget {
-  const _InfoScreen({required this.title});
+  const _InfoScreen({required this.title, required this.body});
   final String title;
+  final String body;
 
   @override
   Widget build(BuildContext context) {
@@ -397,12 +398,7 @@ class _InfoScreen extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.screenPadding),
         children: [
           Text(
-            '${t.appName}\n\n'
-            'Este é um texto base do template. O conteúdo definitivo de '
-            '"$title" deve ser fornecido antes da publicação na Play Store.\n\n'
-            'O aplicativo funciona de forma offline e guarda as suas '
-            'preferências e favoritos apenas no seu dispositivo. Não há coleta '
-            'de dados pessoais nem envio de informações para servidores.',
+            '${t.appName}\n\n$body',
             style: AppTextStyles.body.copyWith(
                 color: p.textSecondary, height: 1.5),
           ),

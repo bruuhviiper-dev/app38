@@ -39,7 +39,7 @@ class _MainShellState extends State<MainShell> {
       body: IndexedStack(
         index: _index,
         children: [
-          HomeBody(onOpenCategories: () => _select(1)),
+          const HomeBody(),
           const CategoriesScreen(),
           const FavoritesScreen(),
           const SettingsScreen(),

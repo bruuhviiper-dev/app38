@@ -133,13 +133,24 @@ class VerseData {
     return all[idx];
   }
 
+  /// Frases variadas p/ o feed "Mais inspirações": uma de cada categoria
+  /// DIFERENTE (girando por dia), para o feed não repetir o mesmo tema.
   static List<Verse> moreInspirations(String lang, {int count = 6}) {
     final today = ofToday(lang);
-    final list = allFor(lang).where((v) => v.id != today.id).toList();
-    if (list.isEmpty) return const [];
     final now = DateTime.now();
-    final start = (now.year + _dayOfYear(now)) % list.length;
-    return [for (var i = 0; i < count; i++) list[(start + i) % list.length]];
+    final seed = now.year + _dayOfYear(now);
+    final map = _data(lang);
+    final out = <Verse>[];
+    for (var i = 0; out.length < count && i < categories.length * 3; i++) {
+      final cat = categories[(seed + i) % categories.length];
+      final list = map[cat.id] ?? const [];
+      if (list.isEmpty) continue;
+      final idx = (seed * 7 + i * 13) % list.length;
+      final id = '${cat.id}#$idx';
+      if (id == today.id) continue;
+      out.add(Verse(cat.id, idx, list[idx]));
+    }
+    return out;
   }
 
   static int _dayOfYear(DateTime d) =>
