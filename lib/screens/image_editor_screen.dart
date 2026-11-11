@@ -86,6 +86,18 @@ class _Format {
   final double ratio;
 }
 
+/// Instantâneo do estado editável, para desfazer/refazer.
+class _Snapshot {
+  const _Snapshot(this.bg, this.bgKind, this.bgColor, this.bgGradient,
+      this.texture, this.filter, this.format, this.textColor, this.intensity,
+      this.brightness, this.contrast, this.saturation, this.textScale,
+      this.align, this.textOffset);
+  final int bg, bgKind, bgColor, bgGradient, texture, filter, format, textColor;
+  final double intensity, brightness, contrast, saturation, textScale;
+  final TextAlign align;
+  final Offset textOffset;
+}
+
 /// Editor PRO: cria uma imagem com a frase sobre um FUNDO (foto, cor sólida,
 /// degradê ou textura), com formatos, 12 filtros (intensidade), ajustes
 /// (brilho/contraste/saturação), texturas sobrepostas e texto
@@ -118,6 +130,9 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
   TextAlign _align = TextAlign.center;
   int _tab = 0;
   bool _busy = false;
+  Offset _textOffset = Offset.zero; // posição do texto (arrastar)
+  final List<_Snapshot> _undo = [];
+  final List<_Snapshot> _redo = [];
 
   static const _formats = [
     _Format('fmtStory', 9 / 16),
@@ -180,7 +195,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     ];
   }
 
-  void _reset() => setState(() {
+  void _reset() => _change(() {
         _filter = 0;
         _intensity = 1.0;
         _brightness = 0.0;
@@ -190,7 +205,60 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
         _textColor = 0;
         _textScale = 1.0;
         _align = TextAlign.center;
+        _textOffset = Offset.zero;
       });
+
+  // ---- Desfazer / refazer ----
+  _Snapshot _capture() => _Snapshot(_bg, _bgKind, _bgColor, _bgGradient,
+      _texture, _filter, _format, _textColor, _intensity, _brightness,
+      _contrast, _saturation, _textScale, _align, _textOffset);
+
+  void _applySnap(_Snapshot s) {
+    _bg = s.bg;
+    _bgKind = s.bgKind;
+    _bgColor = s.bgColor;
+    _bgGradient = s.bgGradient;
+    _texture = s.texture;
+    _filter = s.filter;
+    _format = s.format;
+    _textColor = s.textColor;
+    _intensity = s.intensity;
+    _brightness = s.brightness;
+    _contrast = s.contrast;
+    _saturation = s.saturation;
+    _textScale = s.textScale;
+    _align = s.align;
+    _textOffset = s.textOffset;
+  }
+
+  /// Registra o estado atual na pilha de desfazer. Chamar ANTES de uma mudança.
+  void _record() {
+    _undo.add(_capture());
+    _redo.clear();
+    if (_undo.length > 40) _undo.removeAt(0);
+  }
+
+  /// Muda registrando no histórico (ações discretas / toques).
+  void _change(VoidCallback fn) {
+    _record();
+    setState(fn);
+  }
+
+  void _doUndo() {
+    if (_undo.isEmpty) return;
+    setState(() {
+      _redo.add(_capture());
+      _applySnap(_undo.removeLast());
+    });
+  }
+
+  void _doRedo() {
+    if (_redo.isEmpty) return;
+    setState(() {
+      _undo.add(_capture());
+      _applySnap(_redo.removeLast());
+    });
+  }
 
   Future<void> _run(Future<void> Function() action) async {
     if (_busy) return;
@@ -262,6 +330,16 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
         backgroundColor: p.bg,
         actions: [
           IconButton(
+            tooltip: t.undo,
+            icon: const Icon(LucideIcons.undo2),
+            onPressed: _undo.isEmpty ? null : _doUndo,
+          ),
+          IconButton(
+            tooltip: t.redo,
+            icon: const Icon(LucideIcons.redo2),
+            onPressed: _redo.isEmpty ? null : _doRedo,
+          ),
+          IconButton(
             tooltip: t.reset,
             icon: const Icon(LucideIcons.rotateCcw),
             onPressed: _reset,
@@ -311,32 +389,65 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
                                 ),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(AppSpacing.x6),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: _align == TextAlign.left
-                                    ? CrossAxisAlignment.start
-                                    : _align == TextAlign.right
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.center,
-                                children: [
-                                  Text('“',
-                                      style: AppTextStyles.heroQuote.copyWith(
-                                          color: _textColors[_textColor]
-                                              .withValues(alpha: 0.7),
-                                          fontSize: 52 * _textScale,
-                                          height: 0.8)),
-                                  Text(
-                                    widget.verse.text,
-                                    textAlign: _align,
-                                    style: AppTextStyles.heroQuote.copyWith(
-                                        color: _textColors[_textColor],
-                                        fontSize: 22 * _textScale,
-                                        height: 1.35),
+                            // Texto ARRASTÁVEL: segure e mova para posicionar.
+                            Positioned.fill(
+                              child: LayoutBuilder(builder: (context, c) {
+                                final maxX = c.maxWidth / 2 - 16;
+                                final maxY = c.maxHeight / 2 - 16;
+                                return Align(
+                                  alignment: Alignment.center,
+                                  child: Transform.translate(
+                                    offset: _textOffset,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onPanStart: (_) => _record(),
+                                      onPanUpdate: (d) => setState(() {
+                                        _textOffset = Offset(
+                                          (_textOffset.dx + d.delta.dx)
+                                              .clamp(-maxX, maxX),
+                                          (_textOffset.dy + d.delta.dy)
+                                              .clamp(-maxY, maxY),
+                                        );
+                                      }),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.x6),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: _align ==
+                                                  TextAlign.left
+                                              ? CrossAxisAlignment.start
+                                              : _align == TextAlign.right
+                                                  ? CrossAxisAlignment.end
+                                                  : CrossAxisAlignment.center,
+                                          children: [
+                                            Text('“',
+                                                style: AppTextStyles.heroQuote
+                                                    .copyWith(
+                                                        color: _textColors[
+                                                                _textColor]
+                                                            .withValues(
+                                                                alpha: 0.7),
+                                                        fontSize:
+                                                            52 * _textScale,
+                                                        height: 0.8)),
+                                            Text(
+                                              widget.verse.text,
+                                              textAlign: _align,
+                                              style: AppTextStyles.heroQuote
+                                                  .copyWith(
+                                                      color: _textColors[
+                                                          _textColor],
+                                                      fontSize: 22 * _textScale,
+                                                      height: 1.35),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
+                                );
+                              }),
                             ),
                             Positioned(
                               bottom: 14,
@@ -361,38 +472,39 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
           _FormatBar(
             formats: [t.fmtStory, t.fmtFeed, t.fmtStatus],
             selected: _format,
-            onSelected: (i) => setState(() => _format = i),
+            onSelected: (i) => _change(() => _format = i),
           ),
           // ---- Abas de edição ----
           _ControlPanel(
             tab: _tab,
             onTab: (i) => setState(() => _tab = i),
+            onHistory: _record,
             backgrounds: Landscapes.editorBackgrounds,
             bgKind: _bgKind,
             bgSub: _bgSub,
             onBgSub: (i) => setState(() => _bgSub = i),
             selectedBg: _bg,
-            onBg: (i) => setState(() {
+            onBg: (i) => _change(() {
               _bgKind = 0;
               _bg = i;
             }),
             solidColors: _solidColors,
             selectedColor: _bgColor,
-            onColor: (i) => setState(() {
+            onColor: (i) => _change(() {
               _bgKind = 1;
               _bgColor = i;
             }),
             gradients: _gradients,
             selectedGradient: _bgGradient,
-            onGradient: (i) => setState(() {
+            onGradient: (i) => _change(() {
               _bgKind = 2;
               _bgGradient = i;
             }),
             texture: _texture,
-            onTexture: (i) => setState(() => _texture = i),
+            onTexture: (i) => _change(() => _texture = i),
             filters: filters,
             selectedFilter: _filter,
-            onFilter: (i) => setState(() => _filter = i),
+            onFilter: (i) => _change(() => _filter = i),
             intensity: _intensity,
             onIntensity: (v) => setState(() => _intensity = v),
             brightness: _brightness,
@@ -403,11 +515,11 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
             onSaturation: (v) => setState(() => _saturation = v),
             textColors: _textColors,
             selectedTextColor: _textColor,
-            onTextColor: (i) => setState(() => _textColor = i),
+            onTextColor: (i) => _change(() => _textColor = i),
             textScale: _textScale,
             onTextScale: (v) => setState(() => _textScale = v),
             align: _align,
-            onAlign: (a) => setState(() => _align = a),
+            onAlign: (a) => _change(() => _align = a),
           ),
           // ---- Ações ----
           SafeArea(
@@ -495,6 +607,7 @@ class _ControlPanel extends StatelessWidget {
   const _ControlPanel({
     required this.tab,
     required this.onTab,
+    required this.onHistory,
     required this.backgrounds,
     required this.bgKind,
     required this.bgSub,
@@ -531,6 +644,7 @@ class _ControlPanel extends StatelessWidget {
 
   final int tab;
   final ValueChanged<int> onTab;
+  final VoidCallback onHistory;
   final List<String> backgrounds;
   final int bgKind;
   final int bgSub;
@@ -851,6 +965,7 @@ class _ControlPanel extends StatelessWidget {
               min: 0,
               max: 1,
               onChanged: selectedFilter == 0 ? null : onIntensity,
+              onChangeStart: onHistory,
             ),
           ],
         ),
@@ -866,19 +981,22 @@ class _ControlPanel extends StatelessWidget {
                 value: brightness,
                 min: -0.5,
                 max: 0.5,
-                onChanged: onBrightness),
+                onChanged: onBrightness,
+                onChangeStart: onHistory),
             _SliderRow(
                 label: t.contrast,
                 value: contrast,
                 min: 0.5,
                 max: 1.5,
-                onChanged: onContrast),
+                onChanged: onContrast,
+                onChangeStart: onHistory),
             _SliderRow(
                 label: t.saturation,
                 value: saturation,
                 min: 0,
                 max: 2,
-                onChanged: onSaturation),
+                onChanged: onSaturation,
+                onChangeStart: onHistory),
           ],
         ),
       );
@@ -920,7 +1038,8 @@ class _ControlPanel extends StatelessWidget {
                 value: textScale,
                 min: 0.7,
                 max: 1.4,
-                onChanged: onTextScale),
+                onChanged: onTextScale,
+                onChangeStart: onHistory),
           ],
         ),
       );
@@ -1050,12 +1169,14 @@ class _SliderRow extends StatelessWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.onChangeStart,
   });
   final String label;
   final double value;
   final double min;
   final double max;
   final ValueChanged<double>? onChanged;
+  final VoidCallback? onChangeStart;
 
   @override
   Widget build(BuildContext context) {
@@ -1084,7 +1205,9 @@ class _SliderRow extends StatelessWidget {
                 value: value.clamp(min, max),
                 min: min,
                 max: max,
-                onChanged: onChanged),
+                onChanged: onChanged,
+                onChangeStart:
+                    onChangeStart == null ? null : (_) => onChangeStart!()),
           ),
         ),
       ],

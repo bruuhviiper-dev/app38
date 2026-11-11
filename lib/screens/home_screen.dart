@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
-import '../data/landscapes.dart';
 import '../data/verses.dart';
 import '../l10n/strings.dart';
 import '../services/app_state.dart';
@@ -112,7 +111,7 @@ class _HomeBodyState extends State<HomeBody> {
           for (var i = 0; i < more.length; i++) ...[
             InspirationCard(
               verse: more[i],
-              thumb: Landscapes.inspThumb(i),
+              thumb: VerseData.categoryById(more[i].categoryId).asset,
               isFavorite: state.isFavorite(more[i].id),
               onShare: () => ShareHelper.shareVerse(more[i], appName: t.appName),
               onToggleFavorite: () => _toggleFavorite(more[i]),

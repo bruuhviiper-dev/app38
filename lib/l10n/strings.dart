@@ -103,6 +103,8 @@ class T {
   String get textColor => _('textColor');
   String get alignment => _('alignment');
   String get reset => _('reset');
+  String get undo => _('undo');
+  String get redo => _('redo');
   String get fmtStory => _('fmtStory');
   String get fmtFeed => _('fmtFeed');
   String get fmtStatus => _('fmtStatus');
@@ -257,6 +259,8 @@ class T {
       'textColor': 'Cor',
       'alignment': 'Alinhamento',
       'reset': 'Resetar',
+      'undo': 'Desfazer',
+      'redo': 'Refazer',
       'fmtStory': 'Story',
       'fmtFeed': 'Feed',
       'fmtStatus': 'Status',
@@ -446,6 +450,8 @@ class T {
       'textColor': 'Color',
       'alignment': 'Alignment',
       'reset': 'Reset',
+      'undo': 'Undo',
+      'redo': 'Redo',
       'fmtStory': 'Story',
       'fmtFeed': 'Feed',
       'fmtStatus': 'Status',
@@ -633,6 +639,8 @@ class T {
       'textColor': 'Color',
       'alignment': 'Alineación',
       'reset': 'Restablecer',
+      'undo': 'Deshacer',
+      'redo': 'Rehacer',
       'fmtStory': 'Story',
       'fmtFeed': 'Feed',
       'fmtStatus': 'Status',
