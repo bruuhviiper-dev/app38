@@ -95,6 +95,34 @@ class VerseData {
     return out;
   }
 
+  /// Todas as frases INTERCALADAS entre categorias (round-robin): card 1 de uma
+  /// categoria, card 2 de outra... Evita centenas da mesma categoria (e mesma
+  /// foto) em sequência na tela "Ver todas".
+  static List<Verse> allInterleaved(String lang) {
+    final data = _data(lang);
+    final lists = <List<Verse>>[
+      for (final c in categories)
+        [
+          for (var i = 0; i < (data[c.id]?.length ?? 0); i++)
+            Verse(c.id, i, data[c.id]![i])
+        ]
+    ];
+    final out = <Verse>[];
+    var round = 0;
+    var added = true;
+    while (added) {
+      added = false;
+      for (final l in lists) {
+        if (round < l.length) {
+          out.add(l[round]);
+          added = true;
+        }
+      }
+      round++;
+    }
+    return out;
+  }
+
   static List<Verse> byCategory(String lang, String id) {
     final list = _data(lang)[id] ?? const [];
     return [for (var i = 0; i < list.length; i++) Verse(id, i, list[i])];

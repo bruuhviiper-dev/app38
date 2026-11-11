@@ -64,7 +64,9 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     if (_ad == null) _load();
     if (!_loaded || _ad == null) return const SizedBox.shrink();
     return Container(
-      constraints: const BoxConstraints(minHeight: 280, maxHeight: 340),
+      // Altura folgada p/ o template MEDIUM não ser cortado (o corte é o que o
+      // validador de nativos acusa como "implementation issue").
+      constraints: const BoxConstraints(minHeight: 330, maxHeight: 420),
       margin: const EdgeInsets.only(bottom: AppSpacing.cardGap),
       child: AdWidget(ad: _ad!),
     );
