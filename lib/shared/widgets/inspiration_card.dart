@@ -19,6 +19,7 @@ class InspirationCard extends StatelessWidget {
     required this.isFavorite,
     required this.onShare,
     required this.onToggleFavorite,
+    this.onEdit,
     this.onTap,
   });
 
@@ -27,6 +28,7 @@ class InspirationCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onShare;
   final VoidCallback onToggleFavorite;
+  final VoidCallback? onEdit;
   final VoidCallback? onTap;
 
   @override
@@ -85,6 +87,14 @@ class InspirationCard extends StatelessWidget {
                         children: [
                           Container(width: 22, height: 2, color: AppColors.gold),
                           const Spacer(),
+                          if (onEdit != null) ...[
+                            _GlassAction(
+                              icon: LucideIcons.wand,
+                              tooltip: t.editImage,
+                              onTap: onEdit!,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           _GlassAction(
                             icon: LucideIcons.share2,
                             tooltip: t.share,

@@ -8,6 +8,7 @@ import '../l10n/strings.dart';
 import '../services/app_state.dart';
 import '../services/share_helper.dart';
 import '../shared/widgets/inspiration_card.dart';
+import 'image_editor_screen.dart';
 import 'verse_detail_screen.dart';
 
 /// "Ver todas": lista TODAS as frases (de todas as categorias) como cards
@@ -36,6 +37,9 @@ class AllVersesScreen extends StatelessWidget {
             isFavorite: state.isFavorite(v.id),
             onShare: () => ShareHelper.shareVerse(v, appName: t.appName),
             onToggleFavorite: () => context.read<AppState>().toggleFavorite(v.id),
+            onEdit: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => ImageEditorScreen(verse: v)),
+            ),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => VerseDetailScreen(verse: v)),
             ),

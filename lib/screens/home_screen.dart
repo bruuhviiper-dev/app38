@@ -19,6 +19,7 @@ import '../shared/widgets/section_header.dart';
 import '../shared/widgets/verse_of_day_card.dart';
 import 'all_verses_screen.dart';
 import 'category_verses_screen.dart';
+import 'image_editor_screen.dart';
 import 'settings_screen.dart';
 import 'verse_detail_screen.dart';
 
@@ -115,6 +116,10 @@ class _HomeBodyState extends State<HomeBody> {
               isFavorite: state.isFavorite(more[i].id),
               onShare: () => ShareHelper.shareVerse(more[i], appName: t.appName),
               onToggleFavorite: () => _toggleFavorite(more[i]),
+              onEdit: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) => ImageEditorScreen(verse: more[i])),
+              ),
               onTap: () => _openDetail(more[i]),
             ),
             if (i != more.length - 1) const SizedBox(height: AppSpacing.cardGap),

@@ -8,19 +8,21 @@ import '../../data/verses.dart';
 import '../../l10n/strings.dart';
 
 /// Card de frase em listas (Favoritos, Pesquisa, Categoria): categoria (ícone
-/// dourado + nome) + frase + coração de favoritar. Theme-aware.
+/// dourado + nome) + frase + ações EDITAR e favoritar. Theme-aware.
 class VerseListCard extends StatelessWidget {
   const VerseListCard({
     super.key,
     required this.verse,
     required this.isFavorite,
     required this.onToggleFavorite,
+    this.onEdit,
     this.onTap,
   });
 
   final Verse verse;
   final bool isFavorite;
   final VoidCallback onToggleFavorite;
+  final VoidCallback? onEdit;
   final VoidCallback? onTap;
 
   @override
@@ -68,23 +70,59 @@ class VerseListCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.x2),
-              Semantics(
-                button: true,
-                label: t.favorite,
-                child: InkWell(
-                  onTap: onToggleFavorite,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: Icon(LucideIcons.heart,
-                        size: 20,
-                        color: isFavorite
-                            ? AppColors.gold
-                            : p.textSecondary),
+              Column(
+                children: [
+                  if (onEdit != null)
+                    _CardAction(
+                      icon: LucideIcons.wand,
+                      color: AppColors.gold,
+                      tooltip: t.editImage,
+                      onTap: onEdit!,
+                    ),
+                  _CardAction(
+                    icon: LucideIcons.heart,
+                    color: isFavorite ? AppColors.gold : p.textSecondary,
+                    tooltip: t.favorite,
+                    onTap: onToggleFavorite,
                   ),
-                ),
+                ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Botão de ação do card (editar / favoritar), com tooltip traduzido e área de
+/// toque confortável.
+class _CardAction extends StatelessWidget {
+  const _CardAction({
+    required this.icon,
+    required this.color,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: tooltip,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(icon, size: 20, color: color),
           ),
         ),
       ),

@@ -9,6 +9,7 @@ import '../data/verses.dart';
 import '../l10n/strings.dart';
 import '../services/app_state.dart';
 import '../shared/widgets/verse_list_card.dart';
+import 'image_editor_screen.dart';
 import 'verse_detail_screen.dart';
 
 /// Pesquisa: campo + sugestões populares (categorias) + resultados do banco
@@ -171,6 +172,9 @@ class _Results extends StatelessWidget {
           verse: v,
           isFavorite: state.isFavorite(v.id),
           onToggleFavorite: () => context.read<AppState>().toggleFavorite(v.id),
+          onEdit: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ImageEditorScreen(verse: v)),
+          ),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => VerseDetailScreen(verse: v)),
           ),

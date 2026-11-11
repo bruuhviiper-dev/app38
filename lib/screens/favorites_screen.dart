@@ -10,6 +10,7 @@ import '../l10n/strings.dart';
 import '../services/app_state.dart';
 import '../shared/widgets/filter_chips.dart';
 import '../shared/widgets/verse_list_card.dart';
+import 'image_editor_screen.dart';
 import 'verse_detail_screen.dart';
 
 /// Favoritos: lista das frases salvas (persistidas). Filtros Todas / Texto
@@ -99,6 +100,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 isFavorite: true,
                 onToggleFavorite: () =>
                     context.read<AppState>().toggleFavorite(v.id),
+                onEdit: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => ImageEditorScreen(verse: v)),
+                ),
                 onTap: () => _openDetail(v),
               ),
               const SizedBox(height: AppSpacing.cardGap),
@@ -123,6 +128,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           verse: v,
           isFavorite: true,
           onToggleFavorite: () => context.read<AppState>().toggleFavorite(v.id),
+          onEdit: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ImageEditorScreen(verse: v)),
+          ),
           onTap: () => _openDetail(v),
         );
       },
