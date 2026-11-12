@@ -12,7 +12,7 @@
         android:id="@+id/widget_appname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Frases Diárias"
+        android:text="Frases do Dia"
         android:textColor="#FFC02E"
         android:textStyle="bold"
         android:textSize="12sp"

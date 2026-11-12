@@ -196,7 +196,7 @@ class T {
 
   static const Map<String, Map<String, String>> _data = {
     'pt': {
-      'app.name': 'Frases Diárias',
+      'app.name': 'Frases do Dia',
       'app.subtitle': 'Grandes pensamentos para todos os dias.',
       'notifications': 'Notificações',
       'verseOfDay': 'FRASE DO DIA',

@@ -8,7 +8,7 @@ import 'rate_prompt.dart';
 class ShareHelper {
   ShareHelper._();
 
-  static Future<void> shareVerse(Verse verse, {String appName = 'Frases Diárias'}) async {
+  static Future<void> shareVerse(Verse verse, {String appName = 'Frases do Dia'}) async {
     await SharePlus.instance.share(
       ShareParams(text: '"${verse.text}"\n\n— $appName'),
     );
